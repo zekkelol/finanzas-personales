@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background" style="
+    background-image: url('{{ url_for('static', filename='images/939821c2479a5fda835f0f4ffa416354.jpg') }}');
+"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Stats -->
+<div class="row mb-4 stagger-animation">
+    <div class="col-12">
+        <div class="card card-solid p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted text-uppercase fw-semibold">Total de Activos</small>
+                    <h1 class="display-4 fw-bold mb-0 text-primary">${{ "{:,.2f}".format(total_activos) }}</h1>
+                </div>
+                <div class="d-flex gap-3 mt-3 mt-md-0">
+                    <div class="stat-mini bg-success bg-opacity-10 rounded-3 p-3 text-center">
+                        <small class="text-muted d-block">Ingresos</small>
+                        <span class="fw-bold text-success fs-5">${{ "{:,.2f}".format(ingresos_mes) }}</span>
+                    </div>
+                    <div class="stat-mini bg-danger bg-opacity-10 rounded-3 p-3 text-center">
+                        <small class="text-muted d-block">Gastos</small>
+                        <span class="fw-bold text-danger fs-5">${{ "{:,.2f}".format(gastos_mes) }}</span>
+                    </div>
+                    <div class="stat-mini bg-info bg-opacity-10 rounded-3 p-3 text-center">
+                        <small class="text-muted d-block">Balance</small>
+                        <span class="fw-bold text-info fs-5">${{ "{:,.2f}".format(ingresos_mes - gastos_mes) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Gráfico de Gastos por Categoría -->
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-chart-pie me-2"></i>Gastos por Categoría</span>
+                <small class="text-muted">{{ mes_actual }}</small>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="gastosCategoriaChart" style="max-height: 280px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saldos por Cuenta -->
+    <div class="col-lg-6">
+        <div class="card h-100 card-solid">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-landmark me-2"></i>Saldos por Cuenta</span>
+                <a href="{{ url_for('cuentas') }}" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-plus me-1"></i>Nueva
+                </a>
+            </div>
+            <div class="card-body card-body-solid">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Cuenta</th>
+                                <th>Tipo</th>
+                                <th class="text-end">Saldo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cuenta in cuentas %}
+                            <tr>
+                                <td class="fw-medium">{{ cuenta.nombre }}</td>
+                                <td>
+                                    <span class="badge {% if cuenta.tipo == 'efectivo' %}bg-secondary{% elif cuenta.tipo == 'banco' %}bg-primary{% elif cuenta.tipo == 'tarjeta' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                        {{ cuenta.tipo }}
+                                    </span>
+                                </td>
+                                <td class="text-end fw-bold {% if cuenta.saldo_actual < 0 %}text-danger{% endif %}">
+                                    ${{ "{:,.2f}".format(cuenta.saldo_actual) }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-4">
+                                    <i class="fas fa-landmark fa-2x mb-2 d-block opacity-50"></i>
+                                    No hay cuentas registradas
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Transacciones Recientes -->
+    <div class="col-lg-8">
+        <div class="card card-solid">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-history me-2"></i>Transacciones Recientes</span>
+                <a href="{{ url_for('transacciones') }}" class="btn btn-sm btn-primary">
+                    Ver todas
+                </a>
+            </div>
+            <div class="card-body card-body-solid p-0">
+                <div class="table-responsive table-responsive-solid">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transacciones_recentes %}
+                            <tr>
+                                <td class="text-muted">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+                                <td class="fw-medium">{{ t.descripcion }}</td>
+                                <td>
+                                    {% if t.categoria %}
+                                    <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
+                                    {% else %}
+                                    <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold {% if t.tipo == 'ingreso' %}text-success{% else %}text-danger{% endif %}">
+                                    {% if t.tipo == 'ingreso' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(t.monto) }}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-5">
+                                    <i class="fas fa-receipt fa-3x mb-3 d-block opacity-50"></i>
+                                    No hay transacciones recientes
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Metas de Ahorro -->
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-bullseye me-2"></i>Metas de Ahorro</span>
+                <a href="{{ url_for('metas') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus"></i>
+                </a>
+            </div>
+            <div class="card-body">
+                {% for meta in metas %}
+                <div class="glass-card p-3 mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-semibold">{{ meta.nombre }}</span>
+                        <span class="badge {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning text-dark{% endif %}">
+                            {{ "{:.0f}".format(meta.porcentaje_completado) }}%
+                        </span>
+                    </div>
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar progress-bar-striped {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning{% endif %}"
+                             style="width: {{ meta.porcentaje_completado }}%;">
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        ${{ "{:,.2f}".format(meta.monto_actual) }} / ${{ "{:,.2f}".format(meta.monto_objetivo) }}
+                    </small>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-bullseye fa-3x text-muted mb-3 d-block opacity-50"></i>
+                    <p class="text-muted small mb-3">No hay metas configuradas</p>
+                    <a href="{{ url_for('metas') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-plus me-1"></i>Crear Meta
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Presupuestos del Mes -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-piggy-bank me-2"></i>Presupuestos del Mes</span>
+        <a href="{{ url_for('presupuestos') }}" class="btn btn-sm btn-primary">
+            Gestionar
+        </a>
+    </div>
+    <div class="card-body">
+        {% if presupuestos %}
+        <div class="row g-3">
+            {% for presupuesto in presupuestos %}
+            {% set gastado = gastos_dict.get(presupuesto.categoria_id, 0) %}
+            {% set porcentaje = (gastado / presupuesto.monto * 100) if presupuesto.monto > 0 else 0 %}
+            <div class="col-md-4 col-lg-3">
+                <div class="glass-card p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-semibold">{{ presupuesto.categoria.nombre }}</span>
+                        <span class="badge {% if porcentaje >= 100 %}bg-danger{% elif porcentaje >= 80 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                            {{ "%.0f"|format(porcentaje) }}%
+                        </span>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar {% if porcentaje >= 100 %}bg-danger{% elif porcentaje >= 80 %}bg-warning{% else %}bg-success{% endif %}"
+                             style="width: {{ [porcentaje, 100]|min }}%;">
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        ${{ "{:,.2f}".format(gastado) }} / ${{ "{:,.2f}".format(presupuesto.monto) }}
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-piggy-bank fa-3x text-muted mb-3 d-block opacity-50"></i>
+            <p class="text-muted mb-3">No hay presupuestos para este mes</p>
+            <a href="{{ url_for('nuevo_presupuesto') }}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-1"></i>Crear Presupuesto
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Gráfico de gastos por categoría
+    const ctx = document.getElementById('gastosCategoriaChart').getContext('2d');
+
+    {% if gastos_por_categoria %}
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: [{% for g in gastos_por_categoria %}'{{ g.nombre }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+            datasets: [{
+                data: [{% for g in gastos_por_categoria %}{{ g.total }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                backgroundColor: [{% for g in gastos_por_categoria %}'{{ g.color }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        family: "'Inter', sans-serif"
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif"
+                    }
+                }
+            }
+        }
+    });
+    {% else %}
+    // Mostrar mensaje si no hay datos
+    ctx.font = '14px Inter';
+    ctx.fillStyle = '#6b7280';
+    ctx.textAlign = 'center';
+    ctx.fillText('No hay gastos este mes', ctx.canvas.width / 2, ctx.canvas.height / 2);
+    {% endif %}
+</script>
+{% endblock %}

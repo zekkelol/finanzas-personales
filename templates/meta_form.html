@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if meta else 'Nueva' }} Meta - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/8d0923d157fffa6a1eefc1bfbb8ddae9.jpg') }}'); filter: blur(12px) brightness(0.5);"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="fas fa-bullseye text-primary"></i>
+                <span class="fw-semibold">{{ 'Editar Meta' if meta else 'Nueva Meta de Ahorro' }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre de la Meta *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre"
+                               value="{{ meta.nombre if meta else '' }}" required
+                               placeholder="Ej: Viaje a Europa, Auto Nuevo, Emergencias">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="monto_objetivo" class="form-label">Monto Objetivo *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="monto_objetivo" name="monto_objetivo"
+                                       value="{{ meta.monto_objetivo if meta else '' }}" step="0.01" required
+                                       placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="monto_actual" class="form-label">Monto Actual</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="monto_actual" name="monto_actual"
+                                       value="{{ meta.monto_actual if meta else '0' }}" step="0.01"
+                                       placeholder="0.00">
+                            </div>
+                            <small class="text-muted">Dejá 0 si es nueva</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha_limite" class="form-label">Fecha Límite</label>
+                        <input type="date" class="form-control" id="fecha_limite" name="fecha_limite"
+                               value="{{ meta.fecha_limite.strftime('%Y-%m-%d') if meta and meta.fecha_limite else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cuenta_id" class="form-label">Cuenta Asociada</label>
+                        <select class="form-select" id="cuenta_id" name="cuenta_id">
+                            <option value="">Sin cuenta específica</option>
+                            {% for cuenta in cuentas %}
+                            <option value="{{ cuenta.id }}" {% if meta and meta.cuenta_id == cuenta.id %}selected{% endif %}>
+                                {{ cuenta.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="2"
+                                  placeholder="Detalles sobre esta meta...">{{ meta.descripcion if meta else '' }}</textarea>
+                    </div>
+
+                    {% if meta %}
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="activa" name="activa"
+                               {% if meta.activa %}checked{% endif %}>
+                        <label class="form-check-label" for="activa">Meta Activa</label>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                        <a href="{{ url_for('metas') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

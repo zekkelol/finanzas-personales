@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Configurar Usuario - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/b5ab1290be2d6cd0f26a2892ec2cbf0f.jpg') }}'); filter: blur(12px) brightness(0.5);"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="fas fa-user-cog text-primary"></i>
+                <span class="fw-semibold">Configurar Usuario</span>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Ingresá tu contraseña actual para confirmar los cambios.
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password_actual" class="form-label">Contraseña Actual *</label>
+                        <input type="password" class="form-control" id="password_actual" name="password_actual" required
+                               placeholder="Tu contraseña actual">
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="mb-3">
+                        <label for="nuevo_username" class="form-label">Nuevo Usuario</label>
+                        <input type="text" class="form-control" id="nuevo_username" name="nuevo_username"
+                               value="{{ usuario.username }}" placeholder="Dejá vacío para mantener">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="nueva_password" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="nueva_password" name="nueva_password"
+                               placeholder="Dejá vacío para mantener">
+                        <small class="text-muted">Mínimo 6 caracteres</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

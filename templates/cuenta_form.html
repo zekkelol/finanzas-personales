@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if cuenta else 'Nueva' }} Cuenta - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/800c0da79c5963e0855b4c6b4790babd.jpg') }}'); filter: blur(12px) brightness(0.5);"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="fas fa-landmark text-primary"></i>
+                <span class="fw-semibold">{{ 'Editar Cuenta' if cuenta else 'Nueva Cuenta' }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre *</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre"
+                               value="{{ cuenta.nombre if cuenta else '' }}" required
+                               placeholder="Ej: Banco Galicia, Efectivo, Visa">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="tipo" class="form-label">Tipo *</label>
+                        <select class="form-select" id="tipo" name="tipo" required>
+                            <option value="efectivo" {% if cuenta and cuenta.tipo == 'efectivo' %}selected{% endif %}>Efectivo</option>
+                            <option value="banco" {% if cuenta and cuenta.tipo == 'banco' %}selected{% endif %}>Banco</option>
+                            <option value="tarjeta" {% if cuenta and cuenta.tipo == 'tarjeta' %}selected{% endif %}>Tarjeta</option>
+                            <option value="inversion" {% if cuenta and cuenta.tipo == 'inversion' %}selected{% endif %}>Inversión</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="saldo_inicial" class="form-label">Saldo Inicial</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="saldo_inicial" name="saldo_inicial"
+                                       value="{{ cuenta.saldo_inicial if cuenta else '0' }}" step="0.01">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="moneda" class="form-label">Moneda</label>
+                            <select class="form-select" id="moneda" name="moneda">
+                                <option value="USD" {% if not cuenta or cuenta.moneda == 'USD' %}selected{% endif %}>USD</option>
+                                <option value="EUR" {% if cuenta and cuenta.moneda == 'EUR' %}selected{% endif %}>EUR</option>
+                                <option value="MXN" {% if cuenta and cuenta.moneda == 'MXN' %}selected{% endif %}>MXN</option>
+                                <option value="COP" {% if cuenta and cuenta.moneda == 'COP' %}selected{% endif %}>COP</option>
+                                <option value="ARS" {% if cuenta and cuenta.moneda == 'ARS' %}selected{% endif %}>ARS</option>
+                                <option value="CLP" {% if cuenta and cuenta.moneda == 'CLP' %}selected{% endif %}>CLP</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {% if cuenta %}
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="activa" name="activa"
+                               {% if cuenta.activa %}checked{% endif %}>
+                        <label class="form-check-label" for="activa">Cuenta Activa</label>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                        <a href="{{ url_for('cuentas') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

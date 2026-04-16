@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Transacciones - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/78377b603d9daeff99b8267d185ff592.jpg') }}');"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-exchange-alt"></i>Transacciones</h2>
+    <a href="{{ url_for('nueva_transaccion') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Nueva Transacción
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="card card-solid mb-4">
+    <div class="card-body card-body-solid">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="filtro" class="form-label">Tipo</label>
+                <select class="form-select" id="filtro" name="filtro">
+                    <option value="todas" {% if filtro == 'todas' %}selected{% endif %}>Todas</option>
+                    <option value="ingresos" {% if filtro == 'ingresos' %}selected{% endif %}>Ingresos</option>
+                    <option value="gastos" {% if filtro == 'gastos' %}selected{% endif %}>Gastos</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="cuenta_id" class="form-label">Cuenta</label>
+                <select class="form-select" id="cuenta_id" name="cuenta_id">
+                    <option value="">Todas las cuentas</option>
+                    {% for cuenta in cuentas %}
+                    <option value="{{ cuenta.id }}" {% if cuenta_seleccionada == cuenta.id %}selected{% endif %}>
+                        {{ cuenta.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter me-1"></i>Filtrar
+                </button>
+                <a href="{{ url_for('transacciones') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-times"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Transacciones -->
+<div class="card card-solid">
+    <div class="card-body card-body-solid p-0">
+        <div class="table-responsive table-responsive-solid">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Tipo</th>
+                        <th>Categoría</th>
+                        <th>Cuenta</th>
+                        <th class="text-end">Monto</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transacciones %}
+                    <tr>
+                        <td class="text-muted">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+                        <td class="fw-medium">{{ t.descripcion }}</td>
+                        <td>
+                            <span class="badge {% if t.tipo == 'ingreso' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ 'Ingreso' if t.tipo == 'ingreso' else 'Gasto' }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if t.categoria %}
+                            <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ t.cuenta.nombre }}</td>
+                        <td class="text-end fw-bold {% if t.tipo == 'ingreso' %}text-success{% else %}text-danger{% endif %}">
+                            {% if t.tipo == 'ingreso' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(t.monto) }}
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('editar_transaccion', id=t.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('eliminar_transaccion', id=t.id) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar esta transacción?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="empty-state">
+                                <i class="fas fa-receipt"></i>
+                                <h4>Sin transacciones</h4>
+                                <p class="text-muted">Registrá tu primera transacción para comenzar</p>
+                                <a href="{{ url_for('nueva_transaccion') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i>Registrar Transacción
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Botón de exportar -->
+{% if transacciones %}
+<div class="mt-4 text-end">
+    <a href="{{ url_for('exportar_csv') }}" class="btn btn-success">
+        <i class="fas fa-file-csv me-2"></i>Exportar a CSV
+    </a>
+</div>
+{% endif %}
+{% endblock %}

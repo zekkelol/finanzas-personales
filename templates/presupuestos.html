@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Presupuestos - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/837c2deff80d462f0a1b74942ff827c0.jpg') }}');"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-piggy-bank"></i>Presupuestos</h2>
+    <div class="d-flex gap-2">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+            <i class="fas fa-calendar me-1"></i>{{ mes_actual }}
+        </span>
+        <a href="{{ url_for('nuevo_presupuesto') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nuevo
+        </a>
+    </div>
+</div>
+
+{% if presupuestos %}
+<div class="row g-4">
+    {% for presupuesto in presupuestos %}
+    {% set gastado = gastos_dict.get(presupuesto.categoria_id, 0) %}
+    {% set porcentaje = (gastado / presupuesto.monto * 100) if presupuesto.monto > 0 else 0 %}
+    {% set restante = presupuesto.monto - gastado %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 card-solid">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">{{ presupuesto.categoria.nombre }}</span>
+                <span class="badge {% if porcentaje >= 100 %}bg-danger{% elif porcentaje >= 80 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                    {{ "%.0f"|format(porcentaje) }}%
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-4 text-center">
+                        <small class="text-muted d-block">Presupuestado</small>
+                        <span class="fw-bold fs-5">${{ "{:,.2f}".format(presupuesto.monto) }}</span>
+                    </div>
+                    <div class="col-4 text-center border-start border-end">
+                        <small class="text-danger d-block">Gastado</small>
+                        <span class="fw-bold fs-5 text-danger">${{ "{:,.2f}".format(gastado) }}</span>
+                    </div>
+                    <div class="col-4 text-center">
+                        <small class="text-muted d-block">Restante</small>
+                        <span class="fw-bold fs-5 {% if restante < 0 %}text-danger{% else %}text-success{% endif %}">
+                            ${{ "{:,.2f}".format(restante) }}
+                        </span>
+                    </div>
+                </div>
+                <div class="progress" style="height: 12px;">
+                    <div class="progress-bar progress-bar-striped {% if porcentaje >= 100 %}bg-danger{% elif porcentaje >= 80 %}bg-warning{% else %}bg-success{% endif %}"
+                         style="width: {{ [porcentaje, 100]|min }}%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card">
+    <div class="card-body">
+        <div class="empty-state">
+            <i class="fas fa-piggy-bank"></i>
+            <h4>Sin presupuestos</h4>
+            <p class="text-muted">Creá presupuestos mensuales para controlar tus gastos por categoría</p>
+            <a href="{{ url_for('nuevo_presupuesto') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Crear Presupuesto
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

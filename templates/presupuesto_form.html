@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Presupuesto - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/837c2deff80d462f0a1b74942ff827c0.jpg') }}'); filter: blur(12px) brightness(0.5);"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="fas fa-piggy-bank text-primary"></i>
+                <span class="fw-semibold">Nuevo Presupuesto</span>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="categoria_id" name="categoria_id" required>
+                            <option value="">Seleccionar categoría...</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}">{{ cat.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="monto" class="form-label">Monto Presupuestado *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="monto" name="monto"
+                                   step="0.01" required placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="mes" class="form-label">Mes *</label>
+                            <select class="form-select" id="mes" name="mes" required>
+                                {% for i in range(1, 13) %}
+                                <option value="{{ i }}" {% if i == mes_actual %}selected{% endif %}>
+                                    {{ ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][i-1] }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="anio" class="form-label">Año *</label>
+                            <input type="number" class="form-control" id="anio" name="anio"
+                                   value="{{ anio_actual }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                        <a href="{{ url_for('presupuestos') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

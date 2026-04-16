@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Metas de Ahorro - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/8d0923d157fffa6a1eefc1bfbb8ddae9.jpg') }}');"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-bullseye"></i>Metas de Ahorro</h2>
+    <a href="{{ url_for('nueva_meta') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Nueva Meta
+    </a>
+</div>
+
+<div class="row g-4">
+    {% for meta in metas %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 card-solid {% if not meta.activa %}opacity-75{% endif %}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-bullseye text-primary"></i>
+                    <span class="fw-semibold">{{ meta.nombre }}</span>
+                </div>
+                <span class="badge {% if meta.activa %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ 'Activa' if meta.activa else 'Inactiva' }}
+                </span>
+            </div>
+            <div class="card-body">
+                {% if meta.descripcion %}
+                <p class="text-muted small mb-3">{{ meta.descripcion }}</p>
+                {% endif %}
+
+                <div class="text-center mb-3">
+                    <div class="d-flex justify-content-between align-items-end mb-2">
+                        <small class="text-muted">Progreso</small>
+                        <span class="fw-bold fs-4 {% if meta.porcentaje_completado >= 100 %}text-success{% else %}text-primary{% endif %}">
+                            {{ "{:.0f}".format(meta.porcentaje_completado) }}%
+                        </span>
+                    </div>
+                    <div class="progress" style="height: 16px;">
+                        <div class="progress-bar progress-bar-striped {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning{% endif %}"
+                             style="width: {{ meta.porcentaje_completado }}%;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-2 text-center mb-3">
+                    <div class="col-6">
+                        <small class="text-muted d-block">Actual</small>
+                        <span class="fw-bold text-success">${{ "{:,.2f}".format(meta.monto_actual) }}</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted d-block">Objetivo</small>
+                        <span class="fw-bold">${{ "{:,.2f}".format(meta.monto_objetivo) }}</span>
+                    </div>
+                </div>
+
+                {% if meta.fecha_limite %}
+                <div class="d-flex align-items-center gap-2 text-muted small mb-3">
+                    <i class="fas fa-calendar"></i>
+                    <span>Fecha límite: {{ meta.fecha_limite.strftime('%d/%m/%Y') }}</span>
+                </div>
+                {% endif %}
+
+                {% if meta.cuenta %}
+                <div class="d-flex align-items-center gap-2 text-muted small mb-3">
+                    <i class="fas fa-landmark"></i>
+                    <span>Cuenta: {{ meta.cuenta.nombre }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Formulario para abonar -->
+                {% if meta.activa and meta.porcentaje_completado < 100 %}
+                <form action="{{ url_for('abonar_meta', id=meta.id) }}" method="POST" class="d-flex gap-2">
+                    <input type="number" class="form-control" name="monto"
+                           placeholder="$ Monto" step="0.01" required>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="card-footer d-flex gap-2">
+                <a href="{{ url_for('editar_meta', id=meta.id) }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                    <i class="fas fa-edit me-1"></i>Editar
+                </a>
+                <form action="{{ url_for('eliminar_meta', id=meta.id) }}" method="POST" class="d-inline flex-grow-1"
+                      onsubmit="return confirm('¿Eliminar esta meta?')">
+                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">
+                        <i class="fas fa-trash me-1"></i>Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="empty-state">
+                    <i class="fas fa-bullseye"></i>
+                    <h4>Sin metas de ahorro</h4>
+                    <p class="text-muted">Creá metas para alcanzar tus objetivos financieros</p>
+                    <a href="{{ url_for('nueva_meta') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Crear Primera Meta
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

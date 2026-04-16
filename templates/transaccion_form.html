@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if transaccion else 'Nueva' }} Transacción - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/78377b603d9daeff99b8267d185ff592.jpg') }}'); filter: blur(12px) brightness(0.5);"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card">
+            <div class="card-header d-flex align-items-center gap-2">
+                <i class="fas fa-exchange-alt text-primary"></i>
+                <span class="fw-semibold">{{ 'Editar Transacción' if transaccion else 'Nueva Transacción' }}</span>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción *</label>
+                        <input type="text" class="form-control" id="descripcion" name="descripcion"
+                               value="{{ transaccion.descripcion if transaccion else '' }}" required
+                               placeholder="Ej: Compra en supermercado">
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="monto" class="form-label">Monto *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="monto" name="monto"
+                                       value="{{ transaccion.monto if transaccion else '' }}"
+                                       step="0.01" required placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="tipo" class="form-label">Tipo *</label>
+                            <select class="form-select" id="tipo" name="tipo" required
+                                    onchange="actualizarCategorias()">
+                                <option value="gasto" {% if transaccion and transaccion.tipo == 'gasto' %}selected{% endif %}>Gasto</option>
+                                <option value="ingreso" {% if transaccion and transaccion.tipo == 'ingreso' %}selected{% endif %}>Ingreso</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="fecha" class="form-label">Fecha *</label>
+                            <input type="date" class="form-control" id="fecha" name="fecha"
+                                   value="{{ transaccion.fecha.strftime('%Y-%m-%d') if transaccion else today().strftime('%Y-%m-%d') }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="cuenta_id" class="form-label">Cuenta *</label>
+                            <select class="form-select" id="cuenta_id" name="cuenta_id" required>
+                                {% for cuenta in cuentas %}
+                                <option value="{{ cuenta.id }}" {% if transaccion and transaccion.cuenta_id == cuenta.id %}selected{% endif %}>
+                                    {{ cuenta.nombre }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="categoria_id" class="form-label">Categoría</label>
+                        <select class="form-select" id="categoria_id" name="categoria_id">
+                            <option value="">Sin categoría</option>
+                            {% for cat in categorias %}
+                            <option value="{{ cat.id }}"
+                                    data-tipo="{{ cat.tipo }}"
+                                    style="background-color: {{ cat.color }}20;"
+                                    {% if transaccion and transaccion.categoria_id == cat.id %}selected{% endif %}>
+                                {{ cat.nombre }} ({{ cat.tipo }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-save me-2"></i>Guardar
+                        </button>
+                        <a href="{{ url_for('transacciones') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function actualizarCategorias() {
+        const tipo = document.getElementById('tipo').value;
+        const categoriaSelect = document.getElementById('categoria_id');
+        const opciones = categoriaSelect.querySelectorAll('option');
+
+        opciones.forEach(opcion => {
+            if (opcion.value === '') {
+                opcion.style.display = '';
+            } else {
+                opcion.style.display = (opcion.dataset.tipo === tipo) ? '' : 'none';
+            }
+        });
+
+        // Seleccionar la primera opción visible
+        for (let opcion of opciones) {
+            if (opcion.style.display !== 'none') {
+                categoriaSelect.value = opcion.value;
+                break;
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        actualizarCategorias();
+    });
+</script>
+{% endblock %}
