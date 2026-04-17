@@ -9,45 +9,74 @@
 
 {% block content %}
 <div class="page-header">
-    <h2><i class="fas fa-chart-bar"></i>Reportes y Análisis</h2>
-    <a href="{{ url_for('exportar_csv') }}" class="btn btn-success">
-        <i class="fas fa-file-csv me-2"></i>Exportar CSV
-    </a>
-</div>
-
-<div class="row g-4 mb-4">
-    <!-- Gráfico de Ingresos vs Gastos -->
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-chart-column me-2"></i>Ingresos vs Gastos (Últimos 6 Meses)
-            </div>
-            <div class="card-body">
-                <canvas id="ingresosGastosChart" style="max-height: 300px;"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Balance por Cuenta -->
-    <div class="col-lg-6">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-landmark me-2"></i>Balance por Cuenta
-            </div>
-            <div class="card-body">
-                <canvas id="balanceCuentasChart" style="max-height: 300px;"></canvas>
-            </div>
-        </div>
+    <h2><i class="fas fa-chart-bar"></i>Reportes</h2>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('exportar_csv') }}" class="btn btn-success">
+            <i class="fas fa-file-csv me-2"></i>Exportar CSV
+        </a>
     </div>
 </div>
 
-<!-- Resumen Mensual -->
-<div class="card card-solid">
-    <div class="card-header">
-        <i class="fas fa-table me-2"></i>Resumen Mensual (Últimos 6 Meses)
+{% if modo == 'anual' %}
+<!-- ========== VISTA ANUAL ========== -->
+<div class="card card-solid mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fas fa-calendar-alt text-primary"></i>
+            <span class="fw-bold">Resumen del Año {{ anio }}</span>
+        </div>
+        <a href="{{ url_for('reportes', mes=mes, anio=anio) if modo == 'mensual' else url_for('reportes') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-calendar me-1"></i>Ver Mensual
+        </a>
     </div>
-    <div class="card-body card-body-solid p-0">
-        <div class="table-responsive table-responsive-solid">
+    <div class="card-body">
+        
+        <!-- Selector de año -->
+        <form method="GET" class="mb-4">
+            <input type="hidden" name="anual" value="1">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="anio" class="form-label">Año</label>
+                    <select class="form-select" id="anio" name="anio">
+                        {% for a in anios_disponibles %}
+                        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Ver Año
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Totales Anuales -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card bg-success bg-opacity-10">
+                    <small class="text-muted text-uppercase">Ingresos Totales</small>
+                    <h3 class="text-success mb-0">${{ "{:,.2f}".format(total_ingresos_anual) }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card bg-danger bg-opacity-10">
+                    <small class="text-muted text-uppercase">Gastos Totales</small>
+                    <h3 class="text-danger mb-0">${{ "{:,.2f}".format(total_gastos_anual) }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card {% if total_balance_anual >= 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-10">
+                    <small class="text-muted text-uppercase">Balance Anual</small>
+                    <h3 class="{% if total_balance_anual >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">
+                        ${{ "{:,.2f}".format(total_balance_anual) }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla mensual -->
+        <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
@@ -58,146 +87,199 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% set meses = namespace(data=datos_mensuales) %}
-                    {% for mes in meses.data|dictsort(reverse=true) %}
-                    {% set ingreso = mes[1]['ingreso'] %}
-                    {% set gasto = mes[1]['gasto'] %}
-                    {% set balance = ingreso - gasto %}
+                    {% for item in resumen_anual %}
                     <tr>
-                        <td class="fw-medium">
-                            {{ ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'][mes[0].split('-')[1]|int - 1] }}
-                            {{ mes[0].split('-')[0] }}
+                        <td class="fw-medium">{{ item.nombre }}</td>
+                        <td class="text-end text-success">${{ "{:,.2f}".format(item.ingresos) }}</td>
+                        <td class="text-end text-danger">${{ "{:,.2f}".format(item.gastos) }}</td>
+                        <td class="text-end fw-bold {% if item.balance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ${{ "{:,.2f}".format(item.balance) }}
                         </td>
-                        <td class="text-end text-success fw-medium">${{ "{:,.2f}".format(ingreso) }}</td>
-                        <td class="text-end text-danger fw-medium">${{ "{:,.2f}".format(gasto) }}</td>
-                        <td class="text-end fw-bold {% if balance >= 0 %}text-success{% else %}text-danger{% endif %}">
-                            ${{ "{:,.2f}".format(balance) }}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="fw-bold">
+                    <tr class="border-top-2">
+                        <td>TOTAL</td>
+                        <td class="text-end text-success">${{ "{:,.2f}".format(total_ingresos_anual) }}</td>
+                        <td class="text-end text-danger">${{ "{:,.2f}".format(total_gastos_anual) }}</td>
+                        <td class="text-end {% if total_balance_anual >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ${{ "{:,.2f}".format(total_balance_anual) }}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        {% if categorias_anuales %}
+        <hr class="my-4">
+        <h5 class="mb-3"><i class="fas fa-tags me-2 text-primary"></i>Gastos por Categoría (Año {{ anio }})</h5>
+        <div class="row g-3">
+            {% for cat, total in categorias_anuales.items() %}
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: var(--bg-secondary);">
+                    <span class="fw-medium">{{ cat }}</span>
+                    <span class="text-danger fw-bold">${{ "{:,.2f}".format(total) }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% else %}
+<!-- ========== VISTA MENSUAL ========== -->
+<div class="card card-solid mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fas fa-calendar text-primary"></i>
+            <span class="fw-bold">{{ mes_nombre }} {{ anio }}</span>
+        </div>
+        <a href="{{ url_for('reportes', anio=anio, anual=1) }}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-calendar-alt me-1"></i>Ver Año Completo
+        </a>
+    </div>
+    <div class="card-body">
+        
+        <!-- Selector de mes/año -->
+        <form method="GET" class="mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="mes" class="form-label">Mes</label>
+                    <select class="form-select" id="mes" name="mes">
+                        <option value="1" {% if mes == 1 %}selected{% endif %}>Enero</option>
+                        <option value="2" {% if mes == 2 %}selected{% endif %}>Febrero</option>
+                        <option value="3" {% if mes == 3 %}selected{% endif %}>Marzo</option>
+                        <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
+                        <option value="5" {% if mes == 5 %}selected{% endif %}>Mayo</option>
+                        <option value="6" {% if mes == 6 %}selected{% endif %}>Junio</option>
+                        <option value="7" {% if mes == 7 %}selected{% endif %}>Julio</option>
+                        <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
+                        <option value="9" {% if mes == 9 %}selected{% endif %}>Septiembre</option>
+                        <option value="10" {% if mes == 10 %}selected{% endif %}>Octubre</option>
+                        <option value="11" {% if mes == 11 %}selected{% endif %}>Noviembre</option>
+                        <option value="12" {% if mes == 12 %}selected{% endif %}>Diciembre</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="anio" class="form-label">Año</label>
+                    <select class="form-select" id="anio" name="anio">
+                        {% for a in anios_disponibles %}
+                        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Ver Mes
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Totales del mes -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="stat-card bg-success bg-opacity-10">
+                    <small class="text-muted text-uppercase">Ingresos</small>
+                    <h3 class="text-success mb-0">${{ "{:,.2f}".format(ingresos_mes) }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card bg-danger bg-opacity-10">
+                    <small class="text-muted text-uppercase">Gastos</small>
+                    <h3 class="text-danger mb-0">${{ "{:,.2f}".format(gastos_mes) }}</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card {% if balance_mes >= 0 %}bg-success{% else %}bg-danger{% endif %} bg-opacity-10">
+                    <small class="text-muted text-uppercase">Balance</small>
+                    <h3 class="{% if balance_mes >= 0 %}text-success{% else %}text-danger{% endif %} mb-0">
+                        ${{ "{:,.2f}".format(balance_mes) }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gastos por categoría -->
+        {% if gastos_por_categoria %}
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h5 class="mb-3"><i class="fas fa-arrow-down text-danger me-2"></i>Gastos por Categoría</h5>
+                {% for cat in gastos_por_categoria %}
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ cat.nombre }}</span>
+                        <span class="fw-bold">${{ "{:,.2f}".format(cat.total) }}</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-danger" style="width: {{ (cat.total / gastos_mes * 100)|round }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-lg-6">
+                <h5 class="mb-3"><i class="fas fa-arrow-up text-success me-2"></i>Ingresos por Categoría</h5>
+                {% for cat in ingresos_por_categoria %}
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>{{ cat.nombre }}</span>
+                        <span class="fw-bold">${{ "{:,.2f}".format(cat.total) }}</span>
+                    </div>
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-success" style="width: {{ (cat.total / ingresos_mes * 100)|round }}%;"></div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-muted">No hay ingresos registrados este mes</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Transacciones del mes -->
+        {% if transacciones_mes %}
+        <hr class="my-4">
+        <h5 class="mb-3"><i class="fas fa-list me-2 text-primary"></i>Transacciones del Mes</h5>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Descripción</th>
+                        <th>Categoría</th>
+                        <th class="text-end">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transacciones_mes %}
+                    <tr>
+                        <td class="text-muted">{{ t.fecha.strftime('%d/%m') }}</td>
+                        <td>{{ t.descripcion }}</td>
+                        <td>
+                            {% if t.categoria %}
+                            <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end fw-bold {% if t.tipo == 'ingreso' %}text-success{% else %}text-danger{% endif %}">
+                            {% if t.tipo == 'ingreso' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(t.monto) }}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-receipt fa-3x text-muted mb-3 d-block opacity-50"></i>
+            <p class="text-muted">No hay transacciones este mes</p>
+        </div>
+        {% endif %}
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // Datos para los gráficos
-    const datosMensuales = {{ datos_mensuales|tojson }};
-
-    // Preparar datos para gráfico de barras
-    const labels = Object.keys(datosMensuales).sort();
-    const ingresosData = labels.map(mes => datosMensuales[mes].ingreso);
-    const gastosData = labels.map(mes => datosMensuales[mes].gasto);
-
-    // Gráfico de Ingresos vs Gastos
-    const ctx1 = document.getElementById('ingresosGastosChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: labels.map(mes => {
-                const [anio, mesNum] = mes.split('-');
-                const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-                return meses[parseInt(mesNum) - 1];
-            }),
-            datasets: [
-                {
-                    label: 'Ingresos',
-                    data: ingresosData,
-                    backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                    borderRadius: 8,
-                    borderSkipped: false
-                },
-                {
-                    label: 'Gastos',
-                    data: gastosData,
-                    backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                    borderRadius: 8,
-                    borderSkipped: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        font: {
-                            family: "'Inter', sans-serif"
-                        }
-                    }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        display: true,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        font: {
-                            family: "'Inter', sans-serif"
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            family: "'Inter', sans-serif"
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    // Gráfico de Balance por Cuenta
-    const ctx2 = document.getElementById('balanceCuentasChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'doughnut',
-        data: {
-            labels: [{% for nombre, saldo in balance_cuentas %}'{{ nombre }}'{% if not loop.last %}, {% endif %}{% endfor %}],
-            datasets: [{
-                data: [{% for nombre, saldo in balance_cuentas %}{{ saldo }}{% if not loop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: [
-                    'rgba(99, 102, 241, 0.8)',
-                    'rgba(16, 185, 129, 0.8)',
-                    'rgba(245, 158, 11, 0.8)',
-                    'rgba(6, 182, 212, 0.8)',
-                    'rgba(239, 68, 68, 0.8)',
-                    'rgba(139, 92, 246, 0.8)'
-                ],
-                borderWidth: 0,
-                hoverOffset: 10
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '60%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        font: {
-                            family: "'Inter', sans-serif"
-                        }
-                    }
-                }
-            }
-        }
-    });
-</script>
+{% endif %}
 {% endblock %}

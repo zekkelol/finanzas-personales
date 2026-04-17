@@ -755,31 +755,168 @@ def create_app():
     @login_required
     def reportes():
         hoy = datetime.now().date()
-
-        # Ingresos vs gastos últimos 6 meses
-        seis_meses_atras = hoy - timedelta(days=180)
-
-        # Consulta compatible con PostgreSQL y SQLite
-        transacciones = Transaccion.query.filter(
-            Transaccion.fecha >= seis_meses_atras
-        ).order_by(Transaccion.fecha).all()
-
-        # Agrupar manualmente por mes
-        datos_mensuales = {}
-        for t in transacciones:
-            mes_key = t.fecha.strftime('%Y-%m')
-            if mes_key not in datos_mensuales:
-                datos_mensuales[mes_key] = {'ingreso': 0, 'gasto': 0}
-            datos_mensuales[mes_key][t.tipo] += float(t.monto)
-
-        # Balance por cuenta
-        cuentas = Cuenta.query.filter_by(activa=True).all()
-        balance_cuentas = [(c.nombre, c.saldo_actual) for c in cuentas]
-
-        return render_template('reportes.html',
-                               datos_mensuales=datos_mensuales,
-                               balance_cuentas=balance_cuentas,
-                               mes_actual=hoy.strftime('%B %Y'))
+        
+        # Obtener mes y año seleccionado (por defecto: mes actual)
+        mes = request.args.get('mes', type=int, default=hoy.month)
+        anio = request.args.get('anio', type=int, default=hoy.year)
+        ver_anual = request.args.get('anual', type=int, default=0)
+        
+        # Meses en español
+        meses_espanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        
+        if ver_anual == 1:
+            # Vista anual: todos los meses del año
+            anio_actual = anio
+            resumen_anual = []
+            total_ingresos_anual = 0
+            total_gastos_anual = 0
+            categorias_anuales = {}
+            
+            for m in range(1, 13):
+                inicio_mes = date(anio_actual, m, 1)
+                if m == 12:
+                    fin_mes = date(anio_actual + 1, 1, 1) - timedelta(days=1)
+                else:
+                    fin_mes = date(anio_actual, m + 1, 1) - timedelta(days=1)
+                
+                ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
+                    Transaccion.tipo == 'ingreso',
+                    Transaccion.fecha >= inicio_mes,
+                    Transaccion.fecha <= fin_mes
+                ).scalar() or 0
+                
+                gastos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
+                    Transaccion.tipo == 'gasto',
+                    Transaccion.fecha >= inicio_mes,
+                    Transaccion.fecha <= fin_mes
+                ).scalar() or 0
+                
+                # Gastos por categoría del mes
+                gastos_por_cat = db.session.query(
+                    Categoria.nombre,
+                    func.sum(Transaccion.monto).label('total')
+                ).join(Transaccion).filter(
+                    Transaccion.tipo == 'gasto',
+                    Transaccion.fecha >= inicio_mes,
+                    Transaccion.fecha <= fin_mes
+                ).group_by(Categoria.id).all()
+                
+                for cat in gastos_por_cat:
+                    if cat.nombre not in categorias_anuales:
+                        categorias_anuales[cat.nombre] = 0
+                    categorias_anuales[cat.nombre] += float(cat.total)
+                
+                resumen_anual.append({
+                    'mes': m,
+                    'nombre': meses_espanol[m-1],
+                    'ingresos': float(ingresos_mes),
+                    'gastos': float(gastos_mes),
+                    'balance': float(ingresos_mes) - float(gastos_mes)
+                })
+                
+                total_ingresos_anual += float(ingresos_mes)
+                total_gastos_anual += float(gastos_mes)
+            
+            # Ordenar categorías por total gastado
+            categorias_anuales = dict(sorted(categorias_anuales.items(), key=lambda x: x[1], reverse=True))
+            
+            # Años disponibles (basados en transacciones)
+            anios_disponibles = db.session.query(
+                func.extract('year', Transaccion.fecha).label('anio')
+            ).distinct().all()
+            anios_disponibles = sorted([int(a.anio) for a in anios_disponibles])
+            if not anios_disponibles:
+                anios_disponibles = [hoy.year]
+            
+            return render_template('reportes.html',
+                                   modo='anual',
+                                   anio=anio_actual,
+                                   resumen_anual=resumen_anual,
+                                   total_ingresos_anual=total_ingresos_anual,
+                                   total_gastos_anual=total_gastos_anual,
+                                   total_balance_anual=total_ingresos_anual - total_gastos_anual,
+                                   categorias_anuales=categorias_anuales,
+                                   anios_disponibles=anios_disponibles,
+                                   anios_espanol=meses_espanol)
+        else:
+            # Vista mensual
+            inicio_mes = date(anio, mes, 1)
+            if mes == 12:
+                fin_mes = date(anio + 1, 1, 1) - timedelta(days=1)
+            else:
+                fin_mes = date(anio, mes + 1, 1) - timedelta(days=1)
+            
+            # Resumen del mes
+            ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
+                Transaccion.tipo == 'ingreso',
+                Transaccion.fecha >= inicio_mes,
+                Transaccion.fecha <= fin_mes
+            ).scalar() or 0
+            
+            gastos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
+                Transaccion.tipo == 'gasto',
+                Transaccion.fecha >= inicio_mes,
+                Transaccion.fecha <= fin_mes
+            ).scalar() or 0
+            
+            # Transacciones del mes
+            transacciones_mes = Transaccion.query.filter(
+                Transaccion.fecha >= inicio_mes,
+                Transaccion.fecha <= fin_mes
+            ).order_by(Transaccion.fecha.desc()).all()
+            
+            # Gastos por categoría del mes
+            gastos_por_categoria = db.session.query(
+                Categoria.nombre,
+                Categoria.color,
+                func.sum(Transaccion.monto).label('total')
+            ).join(Transaccion).filter(
+                Transaccion.tipo == 'gasto',
+                Transaccion.fecha >= inicio_mes,
+                Transaccion.fecha <= fin_mes
+            ).group_by(Categoria.id).all()
+            
+            # Ingresos por categoría del mes
+            ingresos_por_categoria = db.session.query(
+                Categoria.nombre,
+                Categoria.color,
+                func.sum(Transaccion.monto).label('total')
+            ).join(Transaccion).filter(
+                Transaccion.tipo == 'ingreso',
+                Transaccion.fecha >= inicio_mes,
+                Transaccion.fecha <= fin_mes
+            ).group_by(Categoria.id).all()
+            
+            # Top gastos del mes
+            top_gastos = Transaccion.query.filter(
+                Transaccion.tipo == 'gasto',
+                Transaccion.fecha >= inicio_mes,
+                Transaccion.fecha <= fin_mes
+            ).order_by(Transaccion.monto.desc()).limit(5).all()
+            
+            # Años disponibles
+            anios_disponibles = db.session.query(
+                func.extract('year', Transaccion.fecha).label('anio')
+            ).distinct().all()
+            anios_disponibles = sorted([int(a.anio) for a in anios_disponibles])
+            if not anios_disponibles:
+                anios_disponibles = [hoy.year]
+            
+            return render_template('reportes.html',
+                                   modo='mensual',
+                                   mes=mes,
+                                   anio=anio,
+                                   mes_nombre=meses_espanol[mes-1],
+                                   ingresos_mes=float(ingresos_mes),
+                                   gastos_mes=float(gastos_mes),
+                                   balance_mes=float(ingresos_mes) - float(gastos_mes),
+                                   transacciones_mes=transacciones_mes,
+                                   gastos_por_categoria=gastos_por_categoria,
+                                   ingresos_por_categoria=ingresos_por_categoria,
+                                   top_gastos=top_gastos,
+                                   anios_disponibles=anios_disponibles,
+                                   anios_espanol=meses_espanol)
 
     @app.route('/reportes/exportar/csv')
     @login_required

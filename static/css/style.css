@@ -607,6 +607,35 @@ main {
     color: #a1a1aa;
 }
 
+/* Stat cards */
+.stat-card {
+    padding: 1.25rem;
+    border-radius: 1rem;
+    transition: all 0.2s ease;
+}
+
+.stat-card small {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.stat-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+[data-theme="dark"] .stat-card {
+    background: rgba(18, 18, 24, 0.8) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Table footer */
+.table tfoot tr {
+    background: var(--bg-secondary);
+}
+
 /* Glass card en dark mode */
 [data-theme="dark"] .glass-card {
     background: rgba(18, 18, 24, 0.92);
