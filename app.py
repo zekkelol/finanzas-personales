@@ -1093,6 +1093,35 @@ def create_app():
             db.session.rollback()
             return {'status': 'error', 'message': str(e)}, 500
 
+    # Ruta para agregar columna 'pagado' a transacciones
+    @app.route('/migrate-pagado')
+    @login_required
+    def migrate_pagado():
+        try:
+            from sqlalchemy import text
+            result = db.session.execute(text(
+                "SELECT column_name FROM information_schema.columns WHERE table_name='transacciones' AND column_name='pagado'"
+            )).fetchone()
+            
+            if result:
+                return {'status': 'ok', 'message': 'Columna pagado ya existe'}
+            else:
+                db.session.execute(text("ALTER TABLE transacciones ADD COLUMN pagado BOOLEAN DEFAULT TRUE"))
+                db.session.commit()
+                return {'status': 'ok', 'message': 'Columna pagado agregada'}
+        except Exception as e:
+            db.session.rollback()
+            return {'status': 'error', 'message': str(e)}, 500
+
+    # API para toggle pagado/pendiente
+    @app.route('/api/transaccion/<int:id>/pagado', methods=['POST'])
+    @login_required
+    def toggle_pagado(id):
+        transaccion = Transaccion.query.get_or_404(id)
+        transaccion.pagado = not transaccion.pagado
+        db.session.commit()
+        return {'status': 'ok', 'pagado': transaccion.pagado}
+
     return app
 
 

@@ -122,6 +122,7 @@
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
+                                <th class="text-center" style="width: 50px;">Pagado</th>
                                 <th>Fecha</th>
                                 <th>Descripción</th>
                                 <th>Categoría</th>
@@ -130,7 +131,11 @@
                         </thead>
                         <tbody>
                             {% for t in transacciones_mes %}
-                            <tr>
+                            <tr class="{% if not t.pagado %}table-warning{% endif %}">
+                                <td class="text-center">
+                                    <input type="checkbox" class="form-check-input pagador-toggle" 
+                                           data-id="{{ t.id }}" {% if t.pagado %}checked{% endif %}>
+                                </td>
                                 <td class="text-muted">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
                                 <td>{{ t.descripcion }}</td>
                                 <td>
@@ -146,7 +151,7 @@
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-5">
+                                <td colspan="5" class="text-center text-muted py-5">
                                     <i class="fas fa-receipt fa-3x mb-3 d-block opacity-50"></i>
                                     No hay transacciones este mes
                                 </td>
@@ -237,5 +242,26 @@
         });
         {% endif %}
     }
+    
+    // Toggle pagado/pendiente
+    document.querySelectorAll('.pagador-toggle').forEach(checkbox => {
+        checkbox.addEventListener('change', async function() {
+            const id = this.dataset.id;
+            const tr = this.closest('tr');
+            
+            try {
+                const response = await fetch(`/api/transaccion/${id}/pagado`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    tr.classList.toggle('table-warning', !this.checked);
+                }
+            } catch (error) {
+                // Revertir si hay error
+                this.checked = !this.checked;
+            }
+        });
+    });
 </script>
 {% endblock %}

@@ -84,6 +84,7 @@ class Transaccion(db.Model):
     monto = db.Column(db.Float, nullable=False)
     tipo = db.Column(db.String(20), nullable=False)  # ingreso o gasto
     fecha = db.Column(db.Date, nullable=False, default=datetime.utcnow().date)
+    pagado = db.Column(db.Boolean, default=True)  # True = pagado, False = pendiente
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Foreign keys
