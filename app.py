@@ -3,13 +3,27 @@ from functools import wraps
 from config import Config
 from models import db, Cuenta, Categoria, Transaccion, Presupuesto, Meta, Usuario
 from datetime import datetime, timedelta, date
-from sqlalchemy import func
+from sqlalchemy import func, inspect
 import io
 import csv
 import json
 
 # Configuración de sesión
 SESSION_TIMEOUT_MINUTES = 15  # Tiempo de inactividad para cerrar sesión
+
+def columna_existe(modelo, columna):
+    """Verifica si una columna existe en el modelo de la DB"""
+    try:
+        mapper = inspect(modelo)
+        return columna in [c.key for c in mapper.columns]
+    except:
+        return False
+
+def filtro_pagado_pendiente():
+    """Retorna filtro para transacciones pendientes, o None si la columna no existe"""
+    if columna_existe(Transaccion, 'pagado'):
+        return Transaccion.pagado == False
+    return None
 
 def login_required(f):
     """Decorador para proteger rutas que requieren autenticación"""
@@ -349,19 +363,25 @@ def create_app():
         ).order_by(Transaccion.fecha.desc()).limit(10).all()
 
         # Gastos pendientes del mes siguiente
-        pendientes_siguiente = Transaccion.query.filter(
-            Transaccion.fecha >= inicio_mes_sig,
-            Transaccion.fecha <= fin_mes_sig,
-            Transaccion.pagado == False
-        ).order_by(Transaccion.fecha.asc()).all()
-
+        filtro_pag = filtro_pagado_pendiente()
+        if filtro_pag:
+            pendientes_siguiente = Transaccion.query.filter(
+                Transaccion.fecha >= inicio_mes_sig,
+                Transaccion.fecha <= fin_mes_sig,
+                filtro_pag
+            ).order_by(Transaccion.fecha.asc()).all()
+        else:
+            pendientes_siguiente = []
+        
         # Gastos pendientes del mes actual
-        gastos_pendientes_mes = db.session.query(func.sum(Transaccion.monto)).filter(
+        query_pendientes = db.session.query(func.sum(Transaccion.monto)).filter(
             Transaccion.tipo == 'gasto',
             Transaccion.fecha >= inicio_mes,
-            Transaccion.fecha <= fin_mes,
-            Transaccion.pagado == False
-        ).scalar() or 0
+            Transaccion.fecha <= fin_mes
+        )
+        if filtro_pag:
+            query_pendientes = query_pendientes.filter(filtro_pag)
+        gastos_pendientes_mes = query_pendientes.scalar() or 0
 
         # Ingresos vs gastos del mes (solo pagados)
         ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
@@ -531,11 +551,15 @@ def create_app():
         transacciones_mes = query.all()
         
         # Transacciones pendientes del mes siguiente
-        pendientes_siguiente = Transaccion.query.filter(
-            Transaccion.fecha >= inicio_mes_sig,
-            Transaccion.fecha <= fin_mes_sig,
-            Transaccion.pagado == False
-        ).order_by(Transaccion.fecha.asc()).all()
+        filtro_pag = filtro_pagado_pendiente()
+        if filtro_pag:
+            pendientes_siguiente = Transaccion.query.filter(
+                Transaccion.fecha >= inicio_mes_sig,
+                Transaccion.fecha <= fin_mes_sig,
+                filtro_pag
+            ).order_by(Transaccion.fecha.asc()).all()
+        else:
+            pendientes_siguiente = []
         
         # Totales del mes
         ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
@@ -550,12 +574,14 @@ def create_app():
             Transaccion.fecha <= fin_mes
         ).scalar() or 0
         
-        gastos_pendientes_mes = db.session.query(func.sum(Transaccion.monto)).filter(
+        query_pendientes = db.session.query(func.sum(Transaccion.monto)).filter(
             Transaccion.tipo == 'gasto',
             Transaccion.fecha >= inicio_mes,
-            Transaccion.fecha <= fin_mes,
-            Transaccion.pagado == False
-        ).scalar() or 0
+            Transaccion.fecha <= fin_mes
+        )
+        if filtro_pag:
+            query_pendientes = query_pendientes.filter(filtro_pag)
+        gastos_pendientes_mes = query_pendientes.scalar() or 0
         
         # Años disponibles
         anios_disponibles = db.session.query(
