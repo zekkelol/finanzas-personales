@@ -462,39 +462,44 @@ def create_app():
         
         if request.method == 'POST':
             try:
-                descripcion = request.form.get('descripcion')
-                monto = float(request.form.get('monto'))
-                tipo = request.form.get('tipo')
-                fecha = datetime.strptime(request.form.get('fecha'), '%Y-%m-%d').date()
-                cuenta_id = int(request.form.get('cuenta_id'))
-                categoria_id = int(request.form.get('categoria_id')) if request.form.get('categoria_id') else None
+                descripcion = request.form.get('descripcion', '').strip()
+                monto_str = request.form.get('monto', '0')
+                tipo = request.form.get('tipo', 'gasto')
+                fecha_str = request.form.get('fecha')
+                cuenta_id_str = request.form.get('cuenta_id')
+                categoria_id_str = request.form.get('categoria_id')
 
                 # Validaciones
-                if not descripcion or not descripcion.strip():
+                if not descripcion:
                     flash('La descripción es obligatoria', 'danger')
                     return render_template('transaccion_form.html',
                                            transaccion=None,
                                            categorias=categorias,
                                            cuentas=cuentas)
                 
-                if monto <= 0:
-                    flash('El monto debe ser mayor a 0', 'danger')
+                try:
+                    monto = float(monto_str) if monto_str else 0
+                except:
+                    monto = 0
+                
+                try:
+                    fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date() if fecha_str else datetime.now().date()
+                except:
+                    fecha = datetime.now().date()
+                
+                try:
+                    cuenta_id = int(cuenta_id_str) if cuenta_id_str else None
+                except:
+                    flash('Seleccioná una cuenta válida', 'danger')
                     return render_template('transaccion_form.html',
                                            transaccion=None,
                                            categorias=categorias,
                                            cuentas=cuentas)
                 
-                # Verificar que la cuenta existe
-                cuenta = Cuenta.query.get(cuenta_id)
-                if not cuenta:
-                    flash('La cuenta seleccionada no existe', 'danger')
-                    return render_template('transaccion_form.html',
-                                           transaccion=None,
-                                           categorias=categorias,
-                                           cuentas=cuentas)
+                categoria_id = int(categoria_id_str) if categoria_id_str else None
 
                 transaccion = Transaccion(
-                    descripcion=descripcion.strip(),
+                    descripcion=descripcion,
                     monto=monto,
                     tipo=tipo,
                     fecha=fecha,
@@ -506,9 +511,6 @@ def create_app():
                 flash('Transacción registrada exitosamente', 'success')
                 return redirect(url_for('transacciones'))
                 
-            except ValueError as e:
-                flash(f'Error en los datos: {str(e)}', 'danger')
-                db.session.rollback()
             except Exception as e:
                 flash(f'Error al guardar: {str(e)}', 'danger')
                 db.session.rollback()
