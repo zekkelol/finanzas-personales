@@ -15,11 +15,112 @@
     </a>
 </div>
 
+<!-- Resumen del Mes -->
+<div class="card card-solid mb-4 {% if es_mes_pasado %}opacity-75{% endif %}">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <!-- Selector de mes -->
+            <div class="col-md-4">
+                <form method="GET" class="d-flex gap-2">
+                    <select class="form-select" name="mes">
+                        <option value="1" {% if mes == 1 %}selected{% endif %}>Ene</option>
+                        <option value="2" {% if mes == 2 %}selected{% endif %}>Feb</option>
+                        <option value="3" {% if mes == 3 %}selected{% endif %}>Mar</option>
+                        <option value="4" {% if mes == 4 %}selected{% endif %}>Abr</option>
+                        <option value="5" {% if mes == 5 %}selected{% endif %}>May</option>
+                        <option value="6" {% if mes == 6 %}selected{% endif %}>Jun</option>
+                        <option value="7" {% if mes == 7 %}selected{% endif %}>Jul</option>
+                        <option value="8" {% if mes == 8 %}selected{% endif %}>Ago</option>
+                        <option value="9" {% if mes == 9 %}selected{% endif %}>Sep</option>
+                        <option value="10" {% if mes == 10 %}selected{% endif %}>Oct</option>
+                        <option value="11" {% if mes == 11 %}selected{% endif %}>Nov</option>
+                        <option value="12" {% if mes == 12 %}selected{% endif %}>Dic</option>
+                    </select>
+                    <select class="form-select" name="anio">
+                        {% for a in anios_disponibles %}
+                        <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Totales -->
+            <div class="col-md-8">
+                <div class="row g-3 text-center">
+                    <div class="col-4">
+                        <small class="text-muted d-block">Ingresos</small>
+                        <span class="fw-bold text-success fs-5">${{ "{:,.2f}".format(ingresos_mes) }}</span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted d-block">Gastos</small>
+                        <span class="fw-bold text-danger fs-5">${{ "{:,.2f}".format(gastos_mes) }}</span>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted d-block">Balance</small>
+                        <span class="fw-bold fs-5 {% if balance_mes >= 0 %}text-success{% else %}text-danger{% endif %}">${{ "{:,.2f}".format(balance_mes) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% if gastos_pendientes_mes > 0 %}
+        <div class="alert alert-warning mt-3 mb-0">
+            <i class="fas fa-clock me-2"></i>
+            <strong>Gastos pendientes este mes:</strong> ${{ "{:,.2f}".format(gastos_pendientes_mes) }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Gastos Pendientes del Mes Siguiente -->
+{% if transacciones_pendientes %}
+<div class="card card-solid mb-4 border-warning">
+    <div class="card-header bg-warning bg-opacity-10">
+        <i class="fas fa-calendar-plus text-warning me-2"></i>
+        <span class="fw-bold">{{ mes_sig_nombre }} {{ anio_siguiente }} - Pendientes</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <tbody>
+                    {% for t in transacciones_pendientes %}
+                    <tr class="table-warning">
+                        <td>
+                            <i class="fas fa-circle text-warning me-2" style="font-size: 0.5rem;"></i>
+                            {{ t.fecha.strftime('%d/%m') }}
+                        </td>
+                        <td>{{ t.descripcion }}</td>
+                        <td>
+                            {% if t.categoria %}
+                            <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-danger fw-bold">-${{ "{:,.2f}".format(t.monto) }}</td>
+                        <td class="text-center">
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-clock me-1"></i>Pendiente
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Filtros -->
 <div class="card card-solid mb-4">
-    <div class="card-body card-body-solid">
+    <div class="card-body">
         <form method="GET" class="row g-3">
-            <div class="col-md-4">
+            <input type="hidden" name="mes" value="{{ mes }}">
+            <input type="hidden" name="anio" value="{{ anio }}">
+            
+            <div class="col-md-3">
                 <label for="filtro" class="form-label">Tipo</label>
                 <select class="form-select" id="filtro" name="filtro">
                     <option value="todas" {% if filtro == 'todas' %}selected{% endif %}>Todas</option>
@@ -27,10 +128,20 @@
                     <option value="gastos" {% if filtro == 'gastos' %}selected{% endif %}>Gastos</option>
                 </select>
             </div>
-            <div class="col-md-4">
+            
+            <div class="col-md-3">
+                <label for="pagado" class="form-label">Estado</label>
+                <select class="form-select" id="pagado" name="pagado">
+                    <option value="todos" {% if pagado_filtro == 'todos' %}selected{% endif %}>Todos</option>
+                    <option value="pagados" {% if pagado_filtro == 'pagados' %}selected{% endif %}>Pagados</option>
+                    <option value="pendientes" {% if pagado_filtro == 'pendientes' %}selected{% endif %}>Pendientes</option>
+                </select>
+            </div>
+            
+            <div class="col-md-3">
                 <label for="cuenta_id" class="form-label">Cuenta</label>
                 <select class="form-select" id="cuenta_id" name="cuenta_id">
-                    <option value="">Todas las cuentas</option>
+                    <option value="">Todas</option>
                     {% for cuenta in cuentas %}
                     <option value="{{ cuenta.id }}" {% if cuenta_seleccionada == cuenta.id %}selected{% endif %}>
                         {{ cuenta.nombre }}
@@ -38,11 +149,12 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-4 d-flex align-items-end gap-2">
+            
+            <div class="col-md-3 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-filter me-1"></i>Filtrar
                 </button>
-                <a href="{{ url_for('transacciones') }}" class="btn btn-outline-secondary">
+                <a href="{{ url_for('transacciones', mes=mes, anio=anio) }}" class="btn btn-outline-secondary">
                     <i class="fas fa-times"></i>
                 </a>
             </div>
@@ -50,27 +162,34 @@
     </div>
 </div>
 
-<!-- Tabla de Transacciones -->
+<!-- Transacciones del Mes -->
 <div class="card card-solid">
-    <div class="card-body card-body-solid p-0">
-        <div class="table-responsive table-responsive-solid">
+    <div class="card-body p-0">
+        <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
+                        <th style="width: 40px;"></th>
                         <th>Fecha</th>
                         <th>Descripción</th>
                         <th>Tipo</th>
                         <th>Categoría</th>
                         <th>Cuenta</th>
                         <th class="text-end">Monto</th>
+                        <th class="text-center">Estado</th>
                         <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for t in transacciones %}
-                    <tr>
-                        <td class="text-muted">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
-                        <td class="fw-medium">{{ t.descripcion }}</td>
+                    <tr class="{% if not t.pagado %}table-warning{% endif %}">
+                        <td class="text-center">
+                            <input type="checkbox" class="form-check-input pagador-toggle" 
+                                   data-id="{{ t.id }}" {% if t.pagado %}checked{% endif %}
+                                   {% if t.pagado %}title="Marcar como pendiente"{% else %}title="Marcar como pagado"{% endif %}>
+                        </td>
+                        <td class="{% if not t.pagado %}fw-medium{% endif %}">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+                        <td class="{% if not t.pagado %}fw-medium{% endif %}">{{ t.descripcion }}</td>
                         <td>
                             <span class="badge {% if t.tipo == 'ingreso' %}bg-success{% else %}bg-danger{% endif %}">
                                 {{ 'Ingreso' if t.tipo == 'ingreso' else 'Gasto' }}
@@ -88,6 +207,17 @@
                             {% if t.tipo == 'ingreso' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(t.monto) }}
                         </td>
                         <td class="text-center">
+                            {% if t.pagado %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>Pagado
+                            </span>
+                            {% else %}
+                            <span class="badge bg-warning text-dark">
+                                <i class="fas fa-clock me-1"></i>Pendiente
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
                             <a href="{{ url_for('editar_transaccion', id=t.id) }}" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -101,11 +231,11 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center py-5">
+                        <td colspan="9" class="text-center py-5">
                             <div class="empty-state">
                                 <i class="fas fa-receipt"></i>
                                 <h4>Sin transacciones</h4>
-                                <p class="text-muted">Registrá tu primera transacción para comenzar</p>
+                                <p class="text-muted">No hay transacciones este mes</p>
                                 <a href="{{ url_for('nueva_transaccion') }}" class="btn btn-primary">
                                     <i class="fas fa-plus me-1"></i>Registrar Transacción
                                 </a>
@@ -118,13 +248,36 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<!-- Botón de exportar -->
-{% if transacciones %}
-<div class="mt-4 text-end">
-    <a href="{{ url_for('exportar_csv') }}" class="btn btn-success">
-        <i class="fas fa-file-csv me-2"></i>Exportar a CSV
-    </a>
-</div>
-{% endif %}
+{% block extra_js %}
+<script>
+    // Toggle pagado/pendiente con checkbox
+    document.querySelectorAll('.pagador-toggle').forEach(checkbox => {
+        checkbox.addEventListener('change', async function() {
+            const id = this.dataset.id;
+            const pagado = this.checked;
+            
+            try {
+                const response = await fetch(`/api/transaccion/${id}/pagar`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({pagado: pagado})
+                });
+                
+                const data = await response.json();
+                if (data.status === 'ok') {
+                    // Recargar la página para actualizar la UI
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Revertir el checkbox si hay error
+                this.checked = !pagado;
+            }
+        });
+    });
+</script>
 {% endblock %}

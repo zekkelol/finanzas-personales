@@ -28,9 +28,9 @@
                         <small class="text-muted d-block">Gastos</small>
                         <span class="fw-bold text-danger fs-5">${{ "{:,.2f}".format(gastos_mes) }}</span>
                     </div>
-                    <div class="stat-mini bg-info bg-opacity-10 rounded-3 p-3 text-center">
-                        <small class="text-muted d-block">Balance</small>
-                        <span class="fw-bold text-info fs-5">${{ "{:,.2f}".format(ingresos_mes - gastos_mes) }}</span>
+                    <div class="stat-mini bg-warning bg-opacity-10 rounded-3 p-3 text-center">
+                        <small class="text-muted d-block">Pendiente</small>
+                        <span class="fw-bold text-warning fs-5">${{ "{:,.2f}".format(gastos_pendientes_mes) }}</span>
                     </div>
                 </div>
             </div>
@@ -41,27 +41,34 @@
 <div class="row g-4 mb-4">
     <!-- Gráfico de Gastos por Categoría -->
     <div class="col-lg-6">
-        <div class="card h-100">
+        <div class="card card-solid h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-chart-pie me-2"></i>Gastos por Categoría</span>
-                <small class="text-muted">{{ mes_actual }}</small>
+                <small class="text-muted">{{ mes_actual_nombre }}</small>
             </div>
             <div class="card-body d-flex align-items-center justify-content-center">
+                {% if gastos_por_categoria %}
                 <canvas id="gastosCategoriaChart" style="max-height: 280px;"></canvas>
+                {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-chart-pie fa-3x mb-2 opacity-50"></i>
+                    <p>Sin gastos este mes</p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 
     <!-- Saldos por Cuenta -->
     <div class="col-lg-6">
-        <div class="card h-100 card-solid">
+        <div class="card card-solid h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="fas fa-landmark me-2"></i>Saldos por Cuenta</span>
                 <a href="{{ url_for('cuentas') }}" class="btn btn-sm btn-outline-primary">
                     <i class="fas fa-plus me-1"></i>Nueva
                 </a>
             </div>
-            <div class="card-body card-body-solid">
+            <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead>
@@ -101,18 +108,25 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <!-- Transacciones Recientes -->
-    <div class="col-lg-8">
-        <div class="card card-solid">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-history me-2"></i>Transacciones Recientes</span>
-                <a href="{{ url_for('transacciones') }}" class="btn btn-sm btn-primary">
-                    Ver todas
-                </a>
+    <!-- Pendientes del Mes Siguiente -->
+    {% if pendientes_siguiente %}
+    <div class="col-12">
+        <div class="card card-solid border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="fas fa-calendar-plus text-warning me-2"></i>
+                        <strong>{{ mes_sig_nombre }} - Gastos Pendientes</strong>
+                        <span class="badge bg-warning text-dark ms-2">${{ "{:,.2f}".format(total_pendientes_sig) }}</span>
+                    </span>
+                    <a href="{{ url_for('transacciones') }}" class="btn btn-sm btn-outline-warning">
+                        Ver en Transacciones
+                    </a>
+                </div>
             </div>
-            <div class="card-body card-body-solid p-0">
-                <div class="table-responsive table-responsive-solid">
-                    <table class="table table-hover mb-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-warning mb-0">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -122,10 +136,52 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for t in transacciones_recentes %}
+                            {% for t in pendientes_siguiente %}
                             <tr>
-                                <td class="text-muted">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ t.fecha.strftime('%d/%m/%Y') }}</td>
                                 <td class="fw-medium">{{ t.descripcion }}</td>
+                                <td>
+                                    {% if t.categoria %}
+                                    <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end fw-bold text-danger">-${{ "{:,.2f}".format(t.monto) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Transacciones del Mes -->
+    <div class="col-12">
+        <div class="card card-solid">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-history me-2"></i>Transacciones - {{ mes_actual_nombre }}</span>
+                <a href="{{ url_for('transacciones') }}" class="btn btn-sm btn-primary">
+                    Ver todas
+                </a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th class="text-end">Monto</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for t in transacciones_mes %}
+                            <tr class="{% if not t.pagado %}table-warning{% endif %}">
+                                <td class="text-muted {% if not t.pagado %}fw-medium{% endif %}">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+                                <td class="{% if not t.pagado %}fw-medium{% endif %}">{{ t.descripcion }}</td>
                                 <td>
                                     {% if t.categoria %}
                                     <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
@@ -136,12 +192,23 @@
                                 <td class="text-end fw-bold {% if t.tipo == 'ingreso' %}text-success{% else %}text-danger{% endif %}">
                                     {% if t.tipo == 'ingreso' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(t.monto) }}
                                 </td>
+                                <td class="text-center">
+                                    {% if t.pagado %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted py-5">
+                                <td colspan="5" class="text-center text-muted py-5">
                                     <i class="fas fa-receipt fa-3x mb-3 d-block opacity-50"></i>
-                                    No hay transacciones recientes
+                                    No hay transacciones este mes
                                 </td>
                             </tr>
                             {% endfor %}
@@ -151,91 +218,43 @@
             </div>
         </div>
     </div>
-
-    <!-- Metas de Ahorro -->
-    <div class="col-lg-4">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-bullseye me-2"></i>Metas de Ahorro</span>
-                <a href="{{ url_for('metas') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus"></i>
-                </a>
-            </div>
-            <div class="card-body">
-                {% for meta in metas %}
-                <div class="glass-card p-3 mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="fw-semibold">{{ meta.nombre }}</span>
-                        <span class="badge {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning text-dark{% endif %}">
-                            {{ "{:.0f}".format(meta.porcentaje_completado) }}%
-                        </span>
-                    </div>
-                    <div class="progress mb-2" style="height: 8px;">
-                        <div class="progress-bar progress-bar-striped {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning{% endif %}"
-                             style="width: {{ meta.porcentaje_completado }}%;">
-                        </div>
-                    </div>
-                    <small class="text-muted">
-                        ${{ "{:,.2f}".format(meta.monto_actual) }} / ${{ "{:,.2f}".format(meta.monto_objetivo) }}
-                    </small>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="fas fa-bullseye fa-3x text-muted mb-3 d-block opacity-50"></i>
-                    <p class="text-muted small mb-3">No hay metas configuradas</p>
-                    <a href="{{ url_for('metas') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-plus me-1"></i>Crear Meta
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 </div>
 
-<!-- Presupuestos del Mes -->
-<div class="card">
+<!-- Metas de Ahorro -->
+<div class="card card-solid">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="fas fa-piggy-bank me-2"></i>Presupuestos del Mes</span>
-        <a href="{{ url_for('presupuestos') }}" class="btn btn-sm btn-primary">
-            Gestionar
+        <span><i class="fas fa-bullseye me-2"></i>Metas de Ahorro</span>
+        <a href="{{ url_for('metas') }}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus"></i>
         </a>
     </div>
     <div class="card-body">
-        {% if presupuestos %}
-        <div class="row g-3">
-            {% for presupuesto in presupuestos %}
-            {% set gastado = gastos_dict.get(presupuesto.categoria_id, 0) %}
-            {% set porcentaje = (gastado / presupuesto.monto * 100) if presupuesto.monto > 0 else 0 %}
-            <div class="col-md-4 col-lg-3">
-                <div class="glass-card p-3">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span class="fw-semibold">{{ presupuesto.categoria.nombre }}</span>
-                        <span class="badge {% if porcentaje >= 100 %}bg-danger{% elif porcentaje >= 80 %}bg-warning text-dark{% else %}bg-success{% endif %}">
-                            {{ "%.0f"|format(porcentaje) }}%
-                        </span>
-                    </div>
-                    <div class="progress mb-2" style="height: 6px;">
-                        <div class="progress-bar {% if porcentaje >= 100 %}bg-danger{% elif porcentaje >= 80 %}bg-warning{% else %}bg-success{% endif %}"
-                             style="width: {{ [porcentaje, 100]|min }}%;">
-                        </div>
-                    </div>
-                    <small class="text-muted">
-                        ${{ "{:,.2f}".format(gastado) }} / ${{ "{:,.2f}".format(presupuesto.monto) }}
-                    </small>
+        {% for meta in metas %}
+        <div class="glass-card p-3 mb-3">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold">{{ meta.nombre }}</span>
+                <span class="badge {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning text-dark{% endif %}">
+                    {{ "{:.0f}".format(meta.porcentaje_completado) }}%
+                </span>
+            </div>
+            <div class="progress mb-2" style="height: 8px;">
+                <div class="progress-bar progress-bar-striped {% if meta.porcentaje_completado >= 100 %}bg-success{% elif meta.porcentaje_completado >= 50 %}bg-primary{% else %}bg-warning{% endif %}"
+                     style="width: {{ meta.porcentaje_completado }}%;">
                 </div>
             </div>
-            {% endfor %}
+            <small class="text-muted">
+                ${{ "{:,.2f}".format(meta.monto_actual) }} / ${{ "{:,.2f}".format(meta.monto_objetivo) }}
+            </small>
         </div>
         {% else %}
         <div class="text-center py-4">
-            <i class="fas fa-piggy-bank fa-3x text-muted mb-3 d-block opacity-50"></i>
-            <p class="text-muted mb-3">No hay presupuestos para este mes</p>
-            <a href="{{ url_for('nuevo_presupuesto') }}" class="btn btn-outline-primary">
-                <i class="fas fa-plus me-1"></i>Crear Presupuesto
+            <i class="fas fa-bullseye fa-3x text-muted mb-3 d-block opacity-50"></i>
+            <p class="text-muted small mb-3">No hay metas configuradas</p>
+            <a href="{{ url_for('metas') }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-plus me-1"></i>Crear Meta
             </a>
         </div>
-        {% endif %}
+        {% endfor %}
     </div>
 </div>
 {% endblock %}
@@ -243,55 +262,40 @@
 {% block extra_js %}
 <script>
     // Gráfico de gastos por categoría
-    const ctx = document.getElementById('gastosCategoriaChart').getContext('2d');
-
-    {% if gastos_por_categoria %}
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: [{% for g in gastos_por_categoria %}'{{ g.nombre }}'{% if not loop.last %}, {% endif %}{% endfor %}],
-            datasets: [{
-                data: [{% for g in gastos_por_categoria %}{{ g.total }}{% if not loop.last %}, {% endif %}{% endfor %}],
-                backgroundColor: [{% for g in gastos_por_categoria %}'{{ g.color }}'{% if not loop.last %}, {% endif %}{% endfor %}],
-                borderWidth: 0,
-                hoverOffset: 10
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            cutout: '65%',
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true,
-                        font: {
-                            family: "'Inter', sans-serif",
-                            size: 12
+    const ctx = document.getElementById('gastosCategoriaChart');
+    if (ctx) {
+        {% if gastos_por_categoria %}
+        new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: [{% for g in gastos_por_categoria %}'{{ g.nombre }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                datasets: [{
+                    data: [{% for g in gastos_por_categoria %}{{ g.total }}{% if not loop.last %}, {% endif %}{% endfor %}],
+                    backgroundColor: [{% for g in gastos_por_categoria %}'{{ g.color }}'{% if not loop.last %}, {% endif %}{% endfor %}],
+                    borderWidth: 0,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
                         }
-                    }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    padding: 12,
-                    titleFont: {
-                        family: "'Inter', sans-serif"
-                    },
-                    bodyFont: {
-                        family: "'Inter', sans-serif"
                     }
                 }
             }
-        }
-    });
-    {% else %}
-    // Mostrar mensaje si no hay datos
-    ctx.font = '14px Inter';
-    ctx.fillStyle = '#6b7280';
-    ctx.textAlign = 'center';
-    ctx.fillText('No hay gastos este mes', ctx.canvas.width / 2, ctx.canvas.height / 2);
-    {% endif %}
+        });
+        {% endif %}
+    }
 </script>
 {% endblock %}

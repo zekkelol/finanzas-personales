@@ -701,6 +701,20 @@ main {
 .bg-primary { background: var(--accent-primary) !important; }
 .bg-secondary { background: var(--bg-secondary) !important; color: var(--text-secondary) !important; }
 
+/* Table warning row */
+.table-warning {
+    background-color: rgba(251, 191, 36, 0.15) !important;
+}
+
+[data-theme="dark"] .table-warning {
+    background-color: rgba(251, 191, 36, 0.1) !important;
+}
+
+/* Border warning */
+.border-warning {
+    border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
 /* ========== PROGRESS BARS ========== */
 .progress {
     background: rgba(124, 58, 237, 0.1);

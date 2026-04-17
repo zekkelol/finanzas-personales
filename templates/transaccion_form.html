@@ -70,7 +70,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="categoria_id" class="form-label">Categoría</label>
                         <select class="form-select" id="categoria_id" name="categoria_id">
                             <option value="">Sin categoría</option>
@@ -83,6 +83,16 @@
                             </option>
                             {% endfor %}
                         </select>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="pagado" name="pagado" value="1" 
+                               {% if not transaccion or transaccion.pagado %}checked{% endif %}>
+                        <label class="form-check-label" for="pagado">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            Ya pagué / Ya recibí
+                        </label>
+                        <small class="text-muted d-block">Desmarcá si es un gasto o ingreso pendiente</small>
                     </div>
 
                     <div class="d-flex gap-2">
