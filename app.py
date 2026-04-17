@@ -1181,7 +1181,7 @@ def create_app():
             
             if not result:
                 # Agregar columna si no existe (para SQLite principalmente)
-                db.session.execute(text("ALTER TABLE transacciones ADD COLUMN pagado BOOLEAN DEFAULT 1"))
+                db.session.execute(text("ALTER TABLE transacciones ADD COLUMN pagado BOOLEAN DEFAULT FALSE"))
                 db.session.execute(text("UPDATE transacciones SET pagado = 1 WHERE pagado IS NULL"))
                 db.session.commit()
                 return {'status': 'ok', 'message': 'Columna pagado agregada y transacciones marcadas como pagadas'}
