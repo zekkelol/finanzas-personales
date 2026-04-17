@@ -16,6 +16,14 @@
                 <span class="fw-semibold">{{ 'Editar Transacción' if transaccion else 'Nueva Transacción' }}</span>
             </div>
             <div class="card-body">
+                
+                {% if not cuentas %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Primero necesitás <a href="{{ url_for('nueva_cuenta') }}">crear una cuenta</a> para poder registrar transacciones.
+                </div>
+                {% else %}
+                
                 <form method="POST">
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción *</label>
@@ -38,7 +46,7 @@
                             <label for="tipo" class="form-label">Tipo *</label>
                             <select class="form-select" id="tipo" name="tipo" required
                                     onchange="actualizarCategorias()">
-                                <option value="gasto" {% if transaccion and transaccion.tipo == 'gasto' %}selected{% endif %}>Gasto</option>
+                                <option value="gasto" {% if not transaccion or transaccion.tipo == 'gasto' %}selected{% endif %}>Gasto</option>
                                 <option value="ingreso" {% if transaccion and transaccion.tipo == 'ingreso' %}selected{% endif %}>Ingreso</option>
                             </select>
                         </div>
@@ -54,7 +62,7 @@
                             <label for="cuenta_id" class="form-label">Cuenta *</label>
                             <select class="form-select" id="cuenta_id" name="cuenta_id" required>
                                 {% for cuenta in cuentas %}
-                                <option value="{{ cuenta.id }}" {% if transaccion and transaccion.cuenta_id == cuenta.id %}selected{% endif %}>
+                                <option value="{{ cuenta.id }}" {% if (not transaccion and loop.first) or (transaccion and transaccion.cuenta_id == cuenta.id) %}selected{% endif %}>
                                     {{ cuenta.nombre }}
                                 </option>
                                 {% endfor %}
@@ -71,7 +79,7 @@
                                     data-tipo="{{ cat.tipo }}"
                                     style="background-color: {{ cat.color }}20;"
                                     {% if transaccion and transaccion.categoria_id == cat.id %}selected{% endif %}>
-                                {{ cat.nombre }} ({{ cat.tipo }})
+                                {{ cat.nombre }}
                             </option>
                             {% endfor %}
                         </select>
@@ -84,6 +92,7 @@
                         <a href="{{ url_for('transacciones') }}" class="btn btn-outline-secondary">Cancelar</a>
                     </div>
                 </form>
+                {% endif %}
             </div>
         </div>
     </div>

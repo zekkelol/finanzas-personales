@@ -453,29 +453,68 @@ def create_app():
     @app.route('/transacciones/nueva', methods=['GET', 'POST'])
     @login_required
     def nueva_transaccion():
-        if request.method == 'POST':
-            descripcion = request.form.get('descripcion')
-            monto = float(request.form.get('monto'))
-            tipo = request.form.get('tipo')
-            fecha = datetime.strptime(request.form.get('fecha'), '%Y-%m-%d').date()
-            cuenta_id = int(request.form.get('cuenta_id'))
-            categoria_id = int(request.form.get('categoria_id')) if request.form.get('categoria_id') else None
-
-            transaccion = Transaccion(
-                descripcion=descripcion,
-                monto=monto,
-                tipo=tipo,
-                fecha=fecha,
-                cuenta_id=cuenta_id,
-                categoria_id=categoria_id
-            )
-            db.session.add(transaccion)
-            db.session.commit()
-            flash('Transacción registrada exitosamente', 'success')
-            return redirect(url_for('transacciones'))
-
         categorias = Categoria.query.all()
         cuentas = Cuenta.query.filter_by(activa=True).all()
+        
+        if not cuentas:
+            flash('Primero necesitás crear una cuenta', 'warning')
+            return redirect(url_for('nueva_cuenta'))
+        
+        if request.method == 'POST':
+            try:
+                descripcion = request.form.get('descripcion')
+                monto = float(request.form.get('monto'))
+                tipo = request.form.get('tipo')
+                fecha = datetime.strptime(request.form.get('fecha'), '%Y-%m-%d').date()
+                cuenta_id = int(request.form.get('cuenta_id'))
+                categoria_id = int(request.form.get('categoria_id')) if request.form.get('categoria_id') else None
+
+                # Validaciones
+                if not descripcion or not descripcion.strip():
+                    flash('La descripción es obligatoria', 'danger')
+                    return render_template('transaccion_form.html',
+                                           transaccion=None,
+                                           categorias=categorias,
+                                           cuentas=cuentas)
+                
+                if monto <= 0:
+                    flash('El monto debe ser mayor a 0', 'danger')
+                    return render_template('transaccion_form.html',
+                                           transaccion=None,
+                                           categorias=categorias,
+                                           cuentas=cuentas)
+                
+                # Verificar que la cuenta existe
+                cuenta = Cuenta.query.get(cuenta_id)
+                if not cuenta:
+                    flash('La cuenta seleccionada no existe', 'danger')
+                    return render_template('transaccion_form.html',
+                                           transaccion=None,
+                                           categorias=categorias,
+                                           cuentas=cuentas)
+
+                transaccion = Transaccion(
+                    descripcion=descripcion.strip(),
+                    monto=monto,
+                    tipo=tipo,
+                    fecha=fecha,
+                    cuenta_id=cuenta_id,
+                    categoria_id=categoria_id
+                )
+                db.session.add(transaccion)
+                db.session.commit()
+                flash('Transacción registrada exitosamente', 'success')
+                return redirect(url_for('transacciones'))
+                
+            except ValueError as e:
+                flash(f'Error en los datos: {str(e)}', 'danger')
+                db.session.rollback()
+            except Exception as e:
+                flash(f'Error al guardar: {str(e)}', 'danger')
+                db.session.rollback()
+                import traceback
+                traceback.print_exc()
+
         return render_template('transaccion_form.html',
                                transaccion=None,
                                categorias=categorias,
