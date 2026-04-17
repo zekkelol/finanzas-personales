@@ -1173,20 +1173,22 @@ def create_app():
     def migrate_pagado():
         """Agrega columna 'pagado' y marca transacciones existentes como pagadas"""
         try:
-            # Verificar si la columna ya existe
             from sqlalchemy import text
+            # Verificar si la columna ya existe
             result = db.session.execute(text(
                 "SELECT column_name FROM information_schema.columns WHERE table_name='transacciones' AND column_name='pagado'"
             )).fetchone()
             
-            if not result:
-                # Agregar columna si no existe (para SQLite principalmente)
-                db.session.execute(text("ALTER TABLE transacciones ADD COLUMN pagado BOOLEAN DEFAULT FALSE"))
-                db.session.execute(text("UPDATE transacciones SET pagado = 1 WHERE pagado IS NULL"))
+            if result:
+                # La columna ya existe, solo marcar las que sean NULL como FALSE
+                db.session.execute(text("UPDATE transacciones SET pagado = FALSE WHERE pagado IS NULL"))
                 db.session.commit()
-                return {'status': 'ok', 'message': 'Columna pagado agregada y transacciones marcadas como pagadas'}
+                return {'status': 'ok', 'message': 'Columna pagado ya existe, valores NULL actualizados'}
             else:
-                return {'status': 'ok', 'message': 'Columna pagado ya existe'}
+                # Agregar columna nueva (para SQLite)
+                db.session.execute(text("ALTER TABLE transacciones ADD COLUMN pagado BOOLEAN DEFAULT FALSE"))
+                db.session.commit()
+                return {'status': 'ok', 'message': 'Columna pagado agregada'}
         except Exception as e:
             db.session.rollback()
             return {'status': 'error', 'message': str(e)}, 500
