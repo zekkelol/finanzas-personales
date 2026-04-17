@@ -851,6 +851,39 @@ def create_app():
             'timeout_minutes': SESSION_TIMEOUT_MINUTES
         })
 
+    # Ruta temporal para arreglar secuencias de PostgreSQL
+    # Ejecutar UNA SOLA VEZ desde el navegador, después eliminar
+    @app.route('/fix-sequences')
+    @login_required
+    def fix_sequences():
+        """Arregla las secuencias de IDs en PostgreSQL después de importar datos"""
+        try:
+            # Transacciones
+            max_id = db.session.query(func.max(Transaccion.id)).scalar() or 0
+            db.session.execute(db.text(f"SELECT setval('transacciones_id_seq', {max_id})"))
+            
+            # Cuentas
+            max_id = db.session.query(func.max(Cuenta.id)).scalar() or 0
+            db.session.execute(db.text(f"SELECT setval('cuentas_id_seq', {max_id})"))
+            
+            # Categorías
+            max_id = db.session.query(func.max(Categoria.id)).scalar() or 0
+            db.session.execute(db.text(f"SELECT setval('categorias_id_seq', {max_id})"))
+            
+            # Presupuestos
+            max_id = db.session.query(func.max(Presupuesto.id)).scalar() or 0
+            db.session.execute(db.text(f"SELECT setval('presupuestos_id_seq', {max_id})"))
+            
+            # Metas
+            max_id = db.session.query(func.max(Meta.id)).scalar() or 0
+            db.session.execute(db.text(f"SELECT setval('metas_id_seq', {max_id})"))
+            
+            db.session.commit()
+            return {'status': 'ok', 'message': 'Secuencias arregladas!'}
+        except Exception as e:
+            db.session.rollback()
+            return {'status': 'error', 'message': str(e)}, 500
+
     return app
 
 
