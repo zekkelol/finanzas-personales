@@ -29,8 +29,8 @@
                         <span class="fw-bold text-danger fs-5">${{ "{:,.2f}".format(gastos_mes) }}</span>
                     </div>
                     <div class="stat-mini bg-warning bg-opacity-10 rounded-3 p-3 text-center">
-                        <small class="text-muted d-block">Pendiente</small>
-                        <span class="fw-bold text-warning fs-5">${{ "{:,.2f}".format(gastos_pendientes_mes) }}</span>
+                        <small class="text-muted d-block">Balance</small>
+                        <span class="fw-bold text-warning fs-5">${{ "{:,.2f}".format(ingresos_mes - gastos_mes) }}</span>
                     </div>
                 </div>
             </div>
@@ -108,54 +108,6 @@
 </div>
 
 <div class="row g-4 mb-4">
-    <!-- Pendientes del Mes Siguiente -->
-    {% if pendientes_siguiente %}
-    <div class="col-12">
-        <div class="card card-solid border-warning">
-            <div class="card-header bg-warning bg-opacity-10">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>
-                        <i class="fas fa-calendar-plus text-warning me-2"></i>
-                        <strong>{{ mes_sig_nombre }} - Gastos Pendientes</strong>
-                        <span class="badge bg-warning text-dark ms-2">${{ "{:,.2f}".format(total_pendientes_sig) }}</span>
-                    </span>
-                    <a href="{{ url_for('transacciones') }}" class="btn btn-sm btn-outline-warning">
-                        Ver en Transacciones
-                    </a>
-                </div>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover table-warning mb-0">
-                        <thead>
-                            <tr>
-                                <th>Fecha</th>
-                                <th>Descripción</th>
-                                <th>Categoría</th>
-                                <th class="text-end">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in pendientes_siguiente %}
-                            <tr>
-                                <td>{{ t.fecha.strftime('%d/%m/%Y') }}</td>
-                                <td class="fw-medium">{{ t.descripcion }}</td>
-                                <td>
-                                    {% if t.categoria %}
-                                    <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-end fw-bold text-danger">-${{ "{:,.2f}".format(t.monto) }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
     <!-- Transacciones del Mes -->
     <div class="col-12">
         <div class="card card-solid">
@@ -174,14 +126,13 @@
                                 <th>Descripción</th>
                                 <th>Categoría</th>
                                 <th class="text-end">Monto</th>
-                                <th class="text-center">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for t in transacciones_mes %}
-                            <tr class="{% if not t.pagado %}table-warning{% endif %}">
-                                <td class="text-muted {% if not t.pagado %}fw-medium{% endif %}">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
-                                <td class="{% if not t.pagado %}fw-medium{% endif %}">{{ t.descripcion }}</td>
+                            <tr>
+                                <td class="text-muted">{{ t.fecha.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ t.descripcion }}</td>
                                 <td>
                                     {% if t.categoria %}
                                     <span class="badge bg-secondary">{{ t.categoria.nombre }}</span>
@@ -192,21 +143,10 @@
                                 <td class="text-end fw-bold {% if t.tipo == 'ingreso' %}text-success{% else %}text-danger{% endif %}">
                                     {% if t.tipo == 'ingreso' %}+{% else %}-{% endif %}${{ "{:,.2f}".format(t.monto) }}
                                 </td>
-                                <td class="text-center">
-                                    {% if t.pagado %}
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check"></i>
-                                    </span>
-                                    {% else %}
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-clock"></i>
-                                    </span>
-                                    {% endif %}
-                                </td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="5" class="text-center text-muted py-5">
+                                <td colspan="4" class="text-center text-muted py-5">
                                     <i class="fas fa-receipt fa-3x mb-3 d-block opacity-50"></i>
                                     No hay transacciones este mes
                                 </td>

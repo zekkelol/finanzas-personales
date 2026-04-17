@@ -3,27 +3,13 @@ from functools import wraps
 from config import Config
 from models import db, Cuenta, Categoria, Transaccion, Presupuesto, Meta, Usuario
 from datetime import datetime, timedelta, date
-from sqlalchemy import func, inspect
+from sqlalchemy import func
 import io
 import csv
 import json
 
 # Configuración de sesión
 SESSION_TIMEOUT_MINUTES = 15  # Tiempo de inactividad para cerrar sesión
-
-def columna_existe(modelo, columna):
-    """Verifica si una columna existe en el modelo de la DB"""
-    try:
-        mapper = inspect(modelo)
-        return columna in [c.key for c in mapper.columns]
-    except:
-        return False
-
-def filtro_pagado_pendiente():
-    """Retorna filtro para transacciones pendientes, o None si la columna no existe"""
-    if columna_existe(Transaccion, 'pagado'):
-        return Transaccion.pagado == False
-    return None
 
 def login_required(f):
     """Decorador para proteger rutas que requieren autenticación"""
@@ -341,20 +327,10 @@ def create_app():
             fin_mes = date(hoy.year + 1, 1, 1) - timedelta(days=1)
         else:
             fin_mes = date(hoy.year, hoy.month + 1, 1) - timedelta(days=1)
-        
-        # Mes siguiente
-        mes_sig = 12 if hoy.month == 12 else hoy.month + 1
-        anio_sig = hoy.year if hoy.month < 12 else hoy.year + 1
-        inicio_mes_sig = date(anio_sig, mes_sig, 1)
-        if mes_sig == 12:
-            fin_mes_sig = date(anio_sig + 1, 1, 1) - timedelta(days=1)
-        else:
-            fin_mes_sig = date(anio_sig, mes_sig + 1, 1) - timedelta(days=1)
-        
+
         meses_espanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
         mes_actual_nombre = meses_espanol[hoy.month - 1]
-        mes_sig_nombre = meses_espanol[mes_sig - 1]
 
         # Transacciones del mes actual
         transacciones_mes = Transaccion.query.filter(
@@ -362,28 +338,7 @@ def create_app():
             Transaccion.fecha <= fin_mes
         ).order_by(Transaccion.fecha.desc()).limit(10).all()
 
-        # Gastos pendientes del mes siguiente
-        filtro_pag = filtro_pagado_pendiente()
-        if filtro_pag:
-            pendientes_siguiente = Transaccion.query.filter(
-                Transaccion.fecha >= inicio_mes_sig,
-                Transaccion.fecha <= fin_mes_sig,
-                filtro_pag
-            ).order_by(Transaccion.fecha.asc()).all()
-        else:
-            pendientes_siguiente = []
-        
-        # Gastos pendientes del mes actual
-        query_pendientes = db.session.query(func.sum(Transaccion.monto)).filter(
-            Transaccion.tipo == 'gasto',
-            Transaccion.fecha >= inicio_mes,
-            Transaccion.fecha <= fin_mes
-        )
-        if filtro_pag:
-            query_pendientes = query_pendientes.filter(filtro_pag)
-        gastos_pendientes_mes = query_pendientes.scalar() or 0
-
-        # Ingresos vs gastos del mes (solo pagados)
+        # Ingresos vs gastos del mes
         ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
             Transaccion.tipo == 'ingreso',
             Transaccion.fecha >= inicio_mes,
@@ -395,9 +350,6 @@ def create_app():
             Transaccion.fecha >= inicio_mes,
             Transaccion.fecha <= fin_mes
         ).scalar() or 0
-
-        # Total pendientes siguiente
-        total_pendientes_sig = sum(t.monto for t in pendientes_siguiente)
 
         # Gastos por categoría (mes actual)
         gastos_por_categoria = db.session.query(
@@ -426,14 +378,10 @@ def create_app():
                                transacciones_mes=transacciones_mes,
                                ingresos_mes=ingresos_mes,
                                gastos_mes=gastos_mes,
-                               gastos_pendientes_mes=gastos_pendientes_mes,
                                gastos_por_categoria=gastos_por_categoria,
                                presupuestos=presupuestos,
                                metas=metas,
-                               mes_actual_nombre=mes_actual_nombre,
-                               mes_sig_nombre=mes_sig_nombre,
-                               pendientes_siguiente=pendientes_siguiente,
-                               total_pendientes_sig=total_pendientes_sig)
+                               mes_actual_nombre=mes_actual_nombre)
 
     @app.route('/cuentas')
     @login_required
@@ -498,7 +446,6 @@ def create_app():
         # Obtener filtros
         filtro = request.args.get('filtro', 'todas')
         cuenta_id = request.args.get('cuenta_id', type=int)
-        pagado_filtro = request.args.get('pagado', 'todos')
         
         # Selector de mes
         mes = request.args.get('mes', type=int, default=hoy.month)
@@ -510,20 +457,6 @@ def create_app():
             fin_mes = date(anio + 1, 1, 1) - timedelta(days=1)
         else:
             fin_mes = date(anio, mes + 1, 1) - timedelta(days=1)
-        
-        # Calcular mes siguiente
-        if mes == 12:
-            mes_siguiente = 1
-            anio_siguiente = anio + 1
-        else:
-            mes_siguiente = mes + 1
-            anio_siguiente = anio
-        
-        inicio_mes_sig = date(anio_siguiente, mes_siguiente, 1)
-        if mes_siguiente == 12:
-            fin_mes_sig = date(anio_siguiente + 1, 1, 1) - timedelta(days=1)
-        else:
-            fin_mes_sig = date(anio_siguiente, mes_siguiente + 1, 1) - timedelta(days=1)
         
         meses_espanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
@@ -542,24 +475,8 @@ def create_app():
 
         if cuenta_id:
             query = query.filter_by(cuenta_id=cuenta_id)
-        
-        if pagado_filtro == 'pagados':
-            query = query.filter_by(pagado=True)
-        elif pagado_filtro == 'pendientes':
-            query = query.filter_by(pagado=False)
 
         transacciones_mes = query.all()
-        
-        # Transacciones pendientes del mes siguiente
-        filtro_pag = filtro_pagado_pendiente()
-        if filtro_pag:
-            pendientes_siguiente = Transaccion.query.filter(
-                Transaccion.fecha >= inicio_mes_sig,
-                Transaccion.fecha <= fin_mes_sig,
-                filtro_pag
-            ).order_by(Transaccion.fecha.asc()).all()
-        else:
-            pendientes_siguiente = []
         
         # Totales del mes
         ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
@@ -574,15 +491,6 @@ def create_app():
             Transaccion.fecha <= fin_mes
         ).scalar() or 0
         
-        query_pendientes = db.session.query(func.sum(Transaccion.monto)).filter(
-            Transaccion.tipo == 'gasto',
-            Transaccion.fecha >= inicio_mes,
-            Transaccion.fecha <= fin_mes
-        )
-        if filtro_pag:
-            query_pendientes = query_pendientes.filter(filtro_pag)
-        gastos_pendientes_mes = query_pendientes.scalar() or 0
-        
         # Años disponibles
         anios_disponibles = db.session.query(
             func.extract('year', Transaccion.fecha).label('anio')
@@ -593,31 +501,23 @@ def create_app():
         
         # Determinar clase de mes
         es_mes_actual = (mes == hoy.month and anio == hoy.year)
-        es_mes_siguiente = (mes == mes_siguiente and anio == anio_siguiente)
         es_mes_pasado = date(anio, mes, 1) < date(hoy.year, hoy.month, 1)
         
         cuentas = Cuenta.query.filter_by(activa=True).all()
 
         return render_template('transacciones.html',
                                transacciones=transacciones_mes,
-                               transacciones_pendientes=pendientes_siguiente,
                                cuentas=cuentas,
                                filtro=filtro,
                                cuenta_seleccionada=cuenta_id,
-                               pagado_filtro=pagado_filtro,
                                mes=mes,
                                anio=anio,
                                mes_nombre=meses_espanol[mes-1],
-                               mes_siguiente=mes_siguiente,
-                               anio_siguiente=anio_siguiente,
-                               mes_sig_nombre=meses_espanol[mes_siguiente-1],
                                ingresos_mes=float(ingresos_mes),
                                gastos_mes=float(gastos_mes),
-                               gastos_pendientes_mes=float(gastos_pendientes_mes),
                                balance_mes=float(ingresos_mes) - float(gastos_mes),
                                anios_disponibles=anios_disponibles,
                                es_mes_actual=es_mes_actual,
-                               es_mes_siguiente=es_mes_siguiente,
                                es_mes_pasado=es_mes_pasado)
 
     @app.route('/transacciones/nueva', methods=['GET', 'POST'])
@@ -1192,43 +1092,6 @@ def create_app():
         except Exception as e:
             db.session.rollback()
             return {'status': 'error', 'message': str(e)}, 500
-
-    # Ruta para migrar: agregar columna 'pagado' a transacciones existentes
-    @app.route('/migrate-pagado')
-    @login_required
-    def migrate_pagado():
-        """Agrega columna 'pagado' y marca transacciones existentes como pagadas"""
-        try:
-            from sqlalchemy import text
-            # Verificar si la columna ya existe
-            result = db.session.execute(text(
-                "SELECT column_name FROM information_schema.columns WHERE table_name='transacciones' AND column_name='pagado'"
-            )).fetchone()
-            
-            if result:
-                # La columna ya existe, solo marcar las que sean NULL como FALSE
-                db.session.execute(text("UPDATE transacciones SET pagado = FALSE WHERE pagado IS NULL"))
-                db.session.commit()
-                return {'status': 'ok', 'message': 'Columna pagado ya existe, valores NULL actualizados'}
-            else:
-                # Agregar columna nueva (para SQLite)
-                db.session.execute(text("ALTER TABLE transacciones ADD COLUMN pagado BOOLEAN DEFAULT FALSE"))
-                db.session.commit()
-                return {'status': 'ok', 'message': 'Columna pagado agregada'}
-        except Exception as e:
-            db.session.rollback()
-            return {'status': 'error', 'message': str(e)}, 500
-
-    # API para marcar transacción como pagada/pendiente
-    @app.route('/api/transaccion/<int:id>/pagar', methods=['POST'])
-    @login_required
-    def toggle_pagado(id):
-        """Toggle el estado pagado/pendiente de una transacción"""
-        transaccion = Transaccion.query.get_or_404(id)
-        data = request.get_json()
-        transaccion.pagado = data.get('pagado', not transaccion.pagado)
-        db.session.commit()
-        return {'status': 'ok', 'pagado': transaccion.pagado}
 
     return app
 
