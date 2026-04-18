@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, make_response, session
 from functools import wraps
 from config import Config
-from models import db, Cuenta, Categoria, Transaccion, Presupuesto, Meta, Usuario
+from models import db, Cuenta, Categoria, Transaccion, Presupuesto, Meta, Usuario, TipoCambio
 from datetime import datetime, timedelta, date
 from sqlalchemy import func
 import io
@@ -630,11 +630,17 @@ def create_app():
     @app.route('/categorias')
     @login_required
     def categorias():
-        categorias_ingresos = Categoria.query.filter_by(tipo='ingreso').all()
-        categorias_gastos = Categoria.query.filter_by(tipo='gasto').all()
+        # Obtener solo categorías principales (sin parent)
+        categorias_ingresos = Categoria.query.filter_by(tipo='ingreso', parent_id=None).all()
+        categorias_gastos = Categoria.query.filter_by(tipo='gasto', parent_id=None).all()
+        
+        # Obtener todas las subcategorías
+        subcategorias = Categoria.query.filter(Categoria.parent_id != None).all()
+        
         return render_template('categorias.html',
                                categorias_ingresos=categorias_ingresos,
-                               categorias_gastos=categorias_gastos)
+                               categorias_gastos=categorias_gastos,
+                               subcategorias=subcategorias)
 
     @app.route('/categorias/nueva', methods=['GET', 'POST'])
     @login_required
@@ -644,19 +650,39 @@ def create_app():
             tipo = request.form.get('tipo')
             icono = request.form.get('icono', 'fa-tag')
             color = request.form.get('color', '#6c757d')
+            parent_id = request.form.get('parent_id')
+            
+            if parent_id:
+                try:
+                    parent_id = int(parent_id)
+                except:
+                    parent_id = None
+            
+            # Obtener el color del padre si es subcategoría
+            if parent_id:
+                padre = Categoria.query.get(parent_id)
+                if padre:
+                    color = padre.color
 
             categoria = Categoria(
                 nombre=nombre,
                 tipo=tipo,
                 icono=icono,
-                color=color
+                color=color,
+                parent_id=parent_id
             )
             db.session.add(categoria)
             db.session.commit()
-            flash('Categoría creada exitosamente', 'success')
+            
+            if parent_id:
+                flash('Subcategoría creada exitosamente', 'success')
+            else:
+                flash('Categoría creada exitosamente', 'success')
             return redirect(url_for('categorias'))
 
-        return render_template('categoria_form.html', categoria=None)
+        # Obtener categorías principales para el select de subcategorías
+        categorias_principales = Categoria.query.filter(Categoria.parent_id == None).order_by(Categoria.tipo, Categoria.nombre).all()
+        return render_template('categoria_form.html', categoria=None, categorias_principales=categorias_principales)
 
     @app.route('/categorias/editar/<int:id>', methods=['GET', 'POST'])
     @login_required
@@ -667,13 +693,22 @@ def create_app():
             categoria.nombre = request.form.get('nombre')
             categoria.tipo = request.form.get('tipo')
             categoria.icono = request.form.get('icono', 'fa-tag')
-            categoria.color = request.form.get('color', '#6c757d')
-
+            color = request.form.get('color', '#6c757d')
+            
+            # Si es subcategoría, mantener el color del padre
+            if categoria.parent_id:
+                padre = Categoria.query.get(categoria.parent_id)
+                if padre:
+                    color = padre.color
+            
+            categoria.color = color
+            
             db.session.commit()
             flash('Categoría actualizada exitosamente', 'success')
             return redirect(url_for('categorias'))
 
-        return render_template('categoria_form.html', categoria=categoria)
+        categorias_principales = Categoria.query.filter(Categoria.parent_id == None).order_by(Categoria.tipo, Categoria.nombre).all()
+        return render_template('categoria_form.html', categoria=categoria, categorias_principales=categorias_principales)
 
     @app.route('/categorias/eliminar/<int:id>', methods=['POST'])
     @login_required
@@ -688,27 +723,43 @@ def create_app():
     @login_required
     def presupuestos():
         hoy = datetime.now().date()
+        
+        # Obtener mes y año de la query string
+        mes = request.args.get('mes', type=int, default=hoy.month)
+        anio = request.args.get('anio', type=int, default=hoy.year)
+        
         presupuestos = Presupuesto.query.filter_by(
-            mes=hoy.month,
-            anio=hoy.year
+            mes=mes,
+            anio=anio
         ).all()
 
         # Calcular gasto actual por categoría
-        inicio_mes = hoy.replace(day=1)
+        inicio_mes = date(anio, mes, 1)
+        if mes == 12:
+            fin_mes = date(anio + 1, 1, 1) - timedelta(days=1)
+        else:
+            fin_mes = date(anio, mes + 1, 1) - timedelta(days=1)
+        
         gastos_por_categoria = db.session.query(
             Transaccion.categoria_id,
             func.sum(Transaccion.monto).label('total')
         ).filter(
             Transaccion.tipo == 'gasto',
-            Transaccion.fecha >= inicio_mes
+            Transaccion.fecha >= inicio_mes,
+            Transaccion.fecha <= fin_mes
         ).group_by(Transaccion.categoria_id).all()
 
         gastos_dict = {g.categoria_id: g.total for g in gastos_por_categoria}
+        
+        meses_espanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
         return render_template('presupuestos.html',
                                presupuestos=presupuestos,
                                gastos_dict=gastos_dict,
-                               mes_actual=hoy.strftime('%B %Y'))
+                               mes_actual=f"{meses_espanol[mes-1]} {anio}",
+                               mes=mes,
+                               anio=anio)
 
     @app.route('/presupuestos/nuevo', methods=['GET', 'POST'])
     @login_required
@@ -1122,6 +1173,295 @@ def create_app():
         db.session.commit()
         return {'status': 'ok', 'pagado': transaccion.pagado}
 
+    # ============ MULTI-MONEDA ============
+    @app.route('/tipos-cambio')
+    @login_required
+    def tipos_cambio():
+        """Gestión de tipos de cambio"""
+        tipos = TipoCambio.query.order_by(TipoCambio.moneda_origen, TipoCambio.moneda_destino).all()
+        return render_template('tipos_cambio.html', tipos=tipos)
+
+    @app.route('/tipos-cambio/nuevo', methods=['POST'])
+    @login_required
+    def nuevo_tipo_cambio():
+        moneda_origen = request.form.get('moneda_origen')
+        moneda_destino = request.form.get('moneda_destino')
+        tasa = float(request.form.get('tasa'))
+        
+        existente = TipoCambio.query.filter_by(
+            moneda_origen=moneda_origen,
+            moneda_destino=moneda_destino
+        ).first()
+        
+        if existente:
+            existente.tasa = tasa
+            existente.fecha_actualizacion = datetime.now().date()
+            flash('Tipo de cambio actualizado', 'success')
+        else:
+            tipo = TipoCambio(
+                moneda_origen=moneda_origen,
+                moneda_destino=moneda_destino,
+                tasa=tasa
+            )
+            db.session.add(tipo)
+            flash('Tipo de cambio creado', 'success')
+        
+        db.session.commit()
+        return redirect(url_for('tipos_cambio'))
+
+    @app.route('/tipos-cambio/eliminar/<int:id>', methods=['POST'])
+    @login_required
+    def eliminar_tipo_cambio(id):
+        tipo = TipoCambio.query.get_or_404(id)
+        db.session.delete(tipo)
+        db.session.commit()
+        flash('Tipo de cambio eliminado', 'success')
+        return redirect(url_for('tipos_cambio'))
+
+    # API para convertir montos
+    @app.route('/api/convertir', methods=['GET'])
+    @login_required
+    def api_convertir():
+        monto = float(request.args.get('monto', 0))
+        origen = request.args.get('origen', 'USD')
+        destino = request.args.get('destino', 'USD')
+        
+        resultado = TipoCambio.convertir(monto, origen, destino)
+        tasa = TipoCambio.obtener_tasa(origen, destino)
+        
+        return jsonify({
+            'monto_original': monto,
+            'monto_convertido': resultado,
+            'tasa': tasa,
+            'origen': origen,
+            'destino': destino
+        })
+
+    # ============ ANÁLISIS DE HÁBITOS DE GASTO ============
+    @app.route('/analisis-habitos')
+    @login_required
+    def analisis_habitos():
+        """Análisis de patrones de gasto por día de la semana y hora"""
+        
+        # Obtener último año de datos
+        hoy = datetime.now().date()
+        hace_un_anio = date(hoy.year - 1, hoy.month, hoy.day)
+        
+        transacciones = Transaccion.query.filter(
+            Transaccion.fecha >= hace_un_anio,
+            Transaccion.tipo == 'gasto'
+        ).all()
+        
+        # Análisis por día de la semana
+        dias_semana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
+        gasto_por_dia = {d: 0.0 for d in range(7)}
+        conteo_por_dia = {d: 0 for d in range(7)}
+        
+        for t in transacciones:
+            dia_semana = t.fecha.weekday()
+            gasto_por_dia[dia_semana] += t.monto
+            conteo_por_dia[dia_semana] += 1
+        
+        # Promedio por día
+        promedio_por_dia = []
+        for d in range(7):
+            promedio = gasto_por_dia[d] / conteo_por_dia[d] if conteo_por_dia[d] > 0 else 0
+            promedio_por_dia.append({
+                'dia': dias_semana[d],
+                'total': gasto_por_dia[d],
+                'conteo': conteo_por_dia[d],
+                'promedio': promedio
+            })
+        
+        # Análisis por semana del mes (semana 1, 2, 3, 4)
+        gasto_por_semana_mes = {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0}
+        for t in transacciones:
+            dia_mes = t.fecha.day
+            semana = (dia_mes - 1) // 7 + 1
+            if semana <= 4:
+                gasto_por_semana_mes[semana] += t.monto
+        
+        # Análisis por categoría: detectar crecimiento/decremento
+        analisis_categorias = []
+        categorias = Categoria.query.filter_by(tipo='gasto').all()
+        
+        for cat in categorias:
+            # Comparar últimos 3 meses vs 3 meses anteriores
+            meses_recientes = []
+            meses_anteriores = []
+            
+            for i in range(1, 4):
+                mes = hoy.month - i
+                anio = hoy.year
+                if mes < 1:
+                    mes += 12
+                    anio -= 1
+                
+                inicio = date(anio, mes, 1)
+                if mes == 12:
+                    fin = date(anio + 1, 1, 1) - timedelta(days=1)
+                else:
+                    fin = date(anio, mes + 1, 1) - timedelta(days=1)
+                
+                total = db.session.query(func.sum(Transaccion.monto)).filter(
+                    Transaccion.categoria_id == cat.id,
+                    Transaccion.tipo == 'gasto',
+                    Transaccion.fecha >= inicio,
+                    Transaccion.fecha <= fin
+                ).scalar() or 0
+                meses_recientes.append(total)
+            
+            for i in range(4, 7):
+                mes = hoy.month - i
+                anio = hoy.year
+                if mes < 1:
+                    mes += 12
+                    anio -= 1
+                
+                inicio = date(anio, mes, 1)
+                if mes == 12:
+                    fin = date(anio + 1, 1, 1) - timedelta(days=1)
+                else:
+                    fin = date(anio, mes + 1, 1) - timedelta(days=1)
+                
+                total = db.session.query(func.sum(Transaccion.monto)).filter(
+                    Transaccion.categoria_id == cat.id,
+                    Transaccion.tipo == 'gasto',
+                    Transaccion.fecha >= inicio,
+                    Transaccion.fecha <= fin
+                ).scalar() or 0
+                meses_anteriores.append(total)
+            
+            if meses_anteriores and sum(meses_anteriores) > 0:
+                tendencia = (sum(meses_recientes) - sum(meses_anteriores)) / sum(meses_anteriores) * 100
+            else:
+                tendencia = 0
+            
+            if cat.id is not None:
+                analisis_categorias.append({
+                    'categoria': cat.nombre,
+                    'color': cat.color,
+                    'tendencia': tendencia
+                })
+        
+        # Ordenar por tendencia
+        analisis_categorias.sort(key=lambda x: x['tendencia'], reverse=True)
+        
+        # Detectar patrones especiales
+        patrones_detectados = []
+        
+        # Patrón: Gasto alto en fines de semana
+        fin_semana = gasto_por_dia[5] + gasto_por_dia[6]
+        entre_semana = sum([gasto_por_dia[i] for i in range(5)])
+        if fin_semana > entre_semana * 0.4:
+            patrones_detectados.append({
+                'tipo': 'fin_semana',
+                'descripcion': 'Tus gastos en fines de semana son significativos (más del 40% del total)',
+                'severidad': 'warning'
+            })
+        
+        # Patrón: creciente en una categoría
+        if analisis_categorias and analisis_categorias[0]['tendencia'] > 20:
+            patrones_detectados.append({
+                'tipo': 'crecimiento',
+                'descripcion': f'La categoría "{analisis_categorias[0]["categoria"]}" ha crecido un {analisis_categorias[0]["tendencia"]:.1f}%',
+                'severidad': 'info'
+            })
+        
+        return render_template('analisis_habitos.html',
+                               promedio_por_dia=promedio_por_dia,
+                               gasto_por_semana_mes=gasto_por_semana_mes,
+                               analisis_categorias=analisis_categorias[:10],
+                               patrones_detectados=patrones_detectados,
+                               total_gasto_anual=sum(gasto_por_dia))
+
+    # ============ PREDICCIÓN DE GASTOS ============
+    @app.route('/predicciones')
+    @login_required
+    def predicciones():
+        """Predicción simple de gastos basada en tendencia"""
+        hoy = datetime.now().date()
+        
+        # Obtener gastos de los últimos 6 meses por categoría
+        predicciones = []
+        categorias = Categoria.query.filter_by(tipo='gasto').all()
+        
+        for cat in categorias:
+            # Obtener gastos de últimos 6 meses
+            gastos_mensuales = []
+            for i in range(5, -1, -1):
+                mes = hoy.month - i
+                anio = hoy.year
+                if mes < 1:
+                    mes += 12
+                    anio -= 1
+                
+                inicio = date(anio, mes, 1)
+                if mes == 12:
+                    fin = date(anio + 1, 1, 1) - timedelta(days=1)
+                else:
+                    fin = date(anio, mes + 1, 1) - timedelta(days=1)
+                
+                total = db.session.query(func.sum(Transaccion.monto)).filter(
+                    Transaccion.categoria_id == cat.id,
+                    Transaccion.tipo == 'gasto',
+                    Transaccion.fecha >= inicio,
+                    Transaccion.fecha <= fin
+                ).scalar() or 0
+                gastos_mensuales.append(total)
+            
+            if len(gastos_mensuales) >= 3 and sum(gastos_mensuales[:3]) > 0:
+                # Calcular tendencia simple (promedio móvil vs mes actual)
+                promedio_hist = sum(gastos_mensuales[:5]) / 5
+                ultimo_mes = gastos_mensuales[-1]
+                
+                if promedio_hist > 0:
+                    cambio_porcentual = ((ultimo_mes - promedio_hist) / promedio_hist) * 100
+                    
+                    # Predicción para próximo mes (lineal)
+                    if cambio_porcentual > 0:
+                        prediccion = ultimo_mes * (1 + cambio_porcentual / 100)
+                    else:
+                        prediccion = ultimo_mes
+                    
+                    # Obtener presupuesto del mes actual
+                    presupuesto_actual = Presupuesto.query.filter_by(
+                        categoria_id=cat.id,
+                        mes=hoy.month,
+                        anio=hoy.year
+                    ).first()
+                    
+                    monto_presupuesto = presupuesto_actual.monto if presupuesto_actual else 0
+                    
+                    # Determinar alerta
+                    if monto_presupuesto > 0 and prediccion > monto_presupuesto:
+                        alerta = 'danger'
+                        mensaje = f'Predicción ${prediccion:.2f} supera presupuesto ${monto_presupuesto:.2f}'
+                    elif cambio_porcentual > 15:
+                        alerta = 'warning'
+                        mensaje = f'Gasto creciente: +{cambio_porcentual:.1f}% vs promedio'
+                    else:
+                        alerta = 'success'
+                        mensaje = 'Gasto estable'
+                    
+                    predicciones.append({
+                        'categoria': cat.nombre,
+                        'color': cat.color,
+                        'gastos_mensuales': gastos_mensuales,
+                        'promedio': promedio_hist,
+                        'ultimo_mes': ultimo_mes,
+                        'prediccion': prediccion,
+                        'tendencia': cambio_porcentual,
+                        'presupuesto': monto_presupuesto,
+                        'alerta': alerta,
+                        'mensaje': mensaje
+                    })
+        
+        # Ordenar porpredicción descendente
+        predicciones.sort(key=lambda x: x['prediccion'], reverse=True)
+        
+        return render_template('predicciones.html', predicciones=predicciones)
+
     return app
 
 
@@ -1143,11 +1483,11 @@ def crear_usuario_por_defecto():
         usuario.set_password(config.PASSWORD_ADMIN)
         db.session.add(usuario)
         db.session.commit()
-        print(f"✅ Usuario creado exitosamente: {config.USUARIO_ADMIN}")
-        print(f"   Contraseña configurada: {config.PASSWORD_ADMIN}")
+        print(f"Usuario creado: {config.USUARIO_ADMIN}")
+        print(f"Contrasena configurada: {config.PASSWORD_ADMIN}")
     except Exception as e:
         db.session.rollback()
-        print(f"❌ Error creando usuario: {e}")
+        print(f"Error creando usuario: {e}")
         import traceback
         traceback.print_exc()
 

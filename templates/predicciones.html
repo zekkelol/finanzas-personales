@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Predicciones - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/a8f08285fe888b765d86bdd7564019f1.jpg') }}');"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-crystal-ball"></i>Predicciones de Gastos</h2>
+    <a href="{{ url_for('analisis_habitos') }}" class="btn btn-outline-primary">
+        <i class="fas fa-brain me-2"></i>Ver Análisis de Hábitos
+    </a>
+</div>
+
+<div class="alert alert-info d-flex align-items-center mb-4">
+    <i class="fas fa-info-circle me-2"></i>
+    <div>
+        <strong>Predicción basada en tendencia:</strong> Estas predicciones usan el promedio histórico de tus últimos 6 meses para proyectar el gasto del próximo mes. 
+        Compara con tu presupuesto para anticipar posibles excedentes.
+    </div>
+</div>
+
+{% if predicciones %}
+<div class="row g-4">
+    {% for p in predicciones %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card card-solid h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <span class="badge" style="background: {{ p.color }}20; color: {{ p.color }};">
+                        {{ p.categoria }}
+                    </span>
+                </h5>
+                <span class="badge bg-{{ 'danger' if p.alerta == 'danger' else ('warning' if p.alerta == 'warning' else 'success') }}">
+                    {{ p.mensaje }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <small class="text-muted d-block">Promedio</small>
+                        <strong>${{ "%.0f"|format(p.promedio) }}</strong>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted d-block">Último Mes</small>
+                        <strong>${{ "%.0f"|format(p.ultimo_mes) }}</strong>
+                    </div>
+                    <div class="col-4">
+                        <small class="text-muted d-block">Predicción</small>
+                        <strong class="{{ 'text-danger' if p.alerta == 'danger' else '' }}">${{ "%.0f"|format(p.prediccion) }}</strong>
+                    </div>
+                </div>
+                
+                {% if p.presupuesto > 0 %}
+                <div class="mb-2">
+                    <small class="d-flex justify-content-between">
+                        <span>Presupuesto: ${{ "%.0f"|format(p.presupuesto) }}</span>
+                        <span>{{ "%.0f"|format((p.prediccion / p.presupuesto * 100) if p.presupuesto > 0 else 0) }}%</span>
+                    </small>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-{{ p.alerta }}" role="progressbar" 
+                             style="width: {{ min(100, (p.prediccion / p.presupuesto * 100) if p.presupuesto > 0 else 0) }}%"></div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <small class="text-muted">
+                    {% if p.tendencia > 0 %}
+                    <i class="fas fa-arrow-up text-danger me-1"></i> increasing {{ "%.1f"|format(p.tendencia) }}% vs promedio
+                    {% elif p.tendencia < 0 %}
+                    <i class="fas fa-arrow-down text-success me-1"></i> decreasing {{ "%.1f"|format(p.tendencia) }}% vs promedio
+                    {% else %}
+                    <i class="fas fa-minus text-muted me-1"></i> Estable
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-crystal-ball fa-3x text-muted mb-3 d-block opacity-50"></i>
+    <p class="text-muted">No hay suficientes datos para generar predicciones.</p>
+    <p class="text-muted small">Necesitas al menos 3 meses de transacciones para ver predicciones.</p>
+</div>
+{% endif %}
+{% endblock %}

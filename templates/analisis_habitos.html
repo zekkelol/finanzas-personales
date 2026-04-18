@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Análisis de Hábitos - Finanzas Personales{% endblock %}
+
+{% block background %}
+<div class="page-background background-smaller" style="background-image: url('{{ url_for('static', filename='images/c2deba357c0e76454a006530ea943a7f.jpg') }}');"></div>
+<div class="page-overlay"></div>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-brain"></i>Análisis de Hábitos de Gasto</h2>
+    <a href="{{ url_for('predicciones') }}" class="btn btn-outline-primary">
+        <i class="fas fa-crystal-ball me-2"></i>Ver Predicciones
+    </a>
+</div>
+
+{% if patrones_detectados %}
+<div class="row g-3 mb-4">
+    {% for patron in patrones_detectados %}
+    <div class="col-12">
+        <div class="alert alert-{{ 'warning' if patron.severidad == 'warning' else 'info' }} d-flex align-items-center">
+            <i class="fas fa-{{ 'exclamation-triangle' if patron.severidad == 'warning' else 'lightbulb' }} me-2"></i>
+            <div>
+                <strong>Patrón detectado:</strong> {{ patron.descripcion }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row g-4">
+    <!-- Gasto por día de la semana -->
+    <div class="col-lg-6">
+        <div class="card card-solid">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calendar-week me-2"></i>Gasto por Día de la Semana</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Día</th>
+                                <th>Total Gastado</th>
+                                <th>Transacciones</th>
+                                <th>Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in promedio_por_dia %}
+                            <tr>
+                                <td><strong>{{ item.dia }}</strong></td>
+                                <td>${{ "%.2f"|format(item.total) }}</td>
+                                <td><span class="badge bg-secondary">{{ item.conteo }}</span></td>
+                                <td>${{ "%.2f"|format(item.promedio) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribución semanal del mes -->
+    <div class="col-lg-6">
+        <div class="card card-solid">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Gasto por Semana del Mes</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    {% for semana, total in gasto_por_semana_mes.items() %}
+                    <div class="col-3">
+                        <div class="p-3 bg-light rounded">
+                            <small class="d-block text-muted">Semana {{ semana }}</small>
+                            <strong>${{ "%.2f"|format(total) }}</strong>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tendencia por categoría -->
+    <div class="col-12">
+        <div class="card card-solid">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Tendencia de Gastos por Categoría (Últimos 3 meses vs anteriores)</h5>
+            </div>
+            <div class="card-body">
+                {% if analisis_categorias %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Tendencia</th>
+                                <th>Clasificación</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in analisis_categorias %}
+                            <tr>
+                                <td>
+                                    <span class="badge" style="background: {{ item.color }}20; color: {{ item.color }};">
+                                        {{ item.categoria }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if item.tendencia > 0 %}
+                                    <span class="text-danger">
+                                        <i class="fas fa-arrow-up"></i> +{{ "%.1f"|format(item.tendencia) }}%
+                                    </span>
+                                    {% elif item.tendencia < 0 %}
+                                    <span class="text-success">
+                                        <i class="fas fa-arrow-down"></i> {{ "%.1f"|format(item.tendencia) }}%
+                                    </span>
+                                    {% else %}
+                                    <span class="text-muted">Sin cambios</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if item.tendencia > 20 %}
+                                    <span class="badge bg-danger">Creciente</span>
+                                    {% elif item.tendencia > 0 %}
+                                    <span class="badge bg-warning text-dark">Ligeramente creciente</span>
+                                    {% elif item.tendencia < -10 %}
+                                    <span class="badge bg-success">Decreciente</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Estable</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-chart-line fa-2x text-muted mb-2 d-block opacity-50"></i>
+                    <p class="text-muted">No hay suficientes datos para analizar tendencias</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen anual -->
+    <div class="col-12">
+        <div class="card card-solid">
+            <div class="card-header bg-success bg-opacity-10">
+                <h5 class="mb-0 text-success"><i class="fas fa-wallet me-2"></i>Total Gastado Últimos 12 Meses</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="mb-0">${{ "%.2f"|format(total_gasto_anual) }}</h2>
+                <small class="text-muted">Basado en {{ promedio_por_dia|sum(attribute='conteo') }} transacciones</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -120,8 +120,10 @@ body {
     height: 100%;
     z-index: -2;
     background-size: 70% auto;
-    background-position: center top;
+    background-position: center center;
     background-repeat: no-repeat;
+    will-change: transform;
+    transition: transform 0.1s ease-out;
 }
 
 .page-background::before {

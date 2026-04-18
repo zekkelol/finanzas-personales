@@ -57,7 +57,7 @@ class Cuenta(db.Model):
 
 
 class Categoria(db.Model):
-    """Categorías para transacciones"""
+    """Categorías para transacciones con soporte de subcategorías"""
     __tablename__ = 'categorias'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -65,11 +65,23 @@ class Categoria(db.Model):
     tipo = db.Column(db.String(20), nullable=False)  # ingreso o gasto
     icono = db.Column(db.String(50), default='fa-tag')
     color = db.Column(db.String(20), default='#6c757d')
+    parent_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relaciones
     transacciones = db.relationship('Transaccion', backref='categoria', lazy='dynamic')
     presupuestos = db.relationship('Presupuesto', backref='categoria', lazy='dynamic')
+    subcategorias = db.relationship('Categoria', backref=db.backref('parent', remote_side=[id]), lazy='dynamic')
+
+    @property
+    def es_subcategoria(self):
+        return self.parent_id is not None
+
+    @property
+    def nombre_completo(self):
+        if self.parent_id:
+            return f"{self.parent.nombre} > {self.nombre}"
+        return self.nombre
 
     def __repr__(self):
         return f'<Categoria {self.nombre} ({self.tipo})>'
@@ -137,3 +149,43 @@ class Meta(db.Model):
 
     def __repr__(self):
         return f'<Meta {self.nombre}>'
+
+
+class TipoCambio(db.Model):
+    """Tipos de cambio entre monedas"""
+    __tablename__ = 'tipos_cambio'
+
+    id = db.Column(db.Integer, primary_key=True)
+    moneda_origen = db.Column(db.String(3), nullable=False)
+    moneda_destino = db.Column(db.String(3), nullable=False)
+    tasa = db.Column(db.Float, nullable=False)
+    fecha_actualizacion = db.Column(db.Date, default=datetime.utcnow().date)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @staticmethod
+    def obtener_tasa(origen, destino):
+        """Obtiene la tasa de cambio entre dos monedas"""
+        if origen == destino:
+            return 1.0
+        tasa = TipoCambio.query.filter_by(
+            moneda_origen=origen,
+            moneda_destino=destino
+        ).first()
+        if tasa:
+            return tasa.tasa
+        tasa_inversa = TipoCambio.query.filter_by(
+            moneda_origen=destino,
+            moneda_destino=origen
+        ).first()
+        if tasa_inversa:
+            return 1 / tasa_inversa.tasa
+        return 1.0
+
+    @staticmethod
+    def convertir(monto, origen, destino):
+        """Convierte un monto de una moneda a otra"""
+        tasa = TipoCambio.obtener_tasa(origen, destino)
+        return monto * tasa
+
+    def __repr__(self):
+        return f'<TipoCambio {self.moneda_origen}/{self.moneda_destino}: {self.tasa}>'

@@ -16,7 +16,42 @@
                 <span class="fw-semibold">{{ 'Editar Categoría' if categoria else 'Nueva Categoría' }}</span>
             </div>
             <div class="card-body">
+                {% if categoria and categoria.parent_id %}
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Editando subcategoría de <strong>{{ categoria.parent.nombre }}</strong>
+                </div>
+                {% endif %}
+                
                 <form method="POST">
+                    {% if categorias_principales %}
+                    <div class="mb-3">
+                        <label for="parent_id" class="form-label">Categoría Principal (para subcategoría)</label>
+                        <select class="form-select" id="parent_id" name="parent_id">
+                            <option value="">-- Sin subcategoría (Categoría principal) --</option>
+                            <optgroup label="Ingresos">
+                            {% for cat in categorias_principales %}
+                                {% if cat.tipo == 'ingreso' %}
+                                <option value="{{ cat.id }}" {% if categoria and categoria.parent_id == cat.id %}selected{% endif %}>
+                                    {{ cat.nombre }}
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                            </optgroup>
+                            <optgroup label="Gastos">
+                            {% for cat in categorias_principales %}
+                                {% if cat.tipo == 'gasto' %}
+                                <option value="{{ cat.id }}" {% if categoria and categoria.parent_id == cat.id %}selected{% endif %}>
+                                    {{ cat.nombre }}
+                                </option>
+                                {% endif %}
+                            {% endfor %}
+                            </optgroup>
+                        </select>
+                        <small class="text-muted">Dejá vacío para crear una categoría principal</small>
+                    </div>
+                    {% endif %}
+
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre *</label>
                         <input type="text" class="form-control" id="nombre" name="nombre"
@@ -26,10 +61,13 @@
 
                     <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo *</label>
-                        <select class="form-select" id="tipo" name="tipo" required>
+                        <select class="form-select" id="tipo" name="tipo" required {% if categoria and categoria.parent_id %}disabled{% endif %}>
                             <option value="ingreso" {% if categoria and categoria.tipo == 'ingreso' %}selected{% endif %}>Ingreso</option>
                             <option value="gasto" {% if not categoria or categoria.tipo == 'gasto' %}selected{% endif %}>Gasto</option>
                         </select>
+                        {% if categoria and categoria.parent_id %}
+                        <input type="hidden" name="tipo" value="{{ categoria.tipo }}">
+                        {% endif %}
                     </div>
 
                     <div class="mb-3">
@@ -45,12 +83,17 @@
                         <div class="d-flex gap-2">
                             <input type="color" class="form-control form-control-color" id="color" name="color"
                                    value="{{ categoria.color if categoria else '#6c757d' }}"
-                                   style="width: 60px; height: 45px; padding: 4px;">
+                                   style="width: 60px; height: 45px; padding: 4px;"
+                                   {% if categoria and categoria.parent_id %}readonly{% endif %}>
                             <input type="text" class="form-control" id="colorHex" 
                                    value="{{ categoria.color if categoria else '#6c757d' }}"
                                    pattern="^#[0-9A-Fa-f]{6}$" placeholder="#6c757d"
-                                   onchange="document.getElementById('color').value = this.value">
+                                   onchange="document.getElementById('color').value = this.value"
+                                   {% if categoria and categoria.parent_id %}readonly{% endif %}>
                         </div>
+                        {% if categoria and categoria.parent_id %}
+                        <small class="text-muted">Las subcategorías heredan el color de la categoría principal</small>
+                        {% endif %}
                     </div>
 
                     <div class="d-flex gap-2">

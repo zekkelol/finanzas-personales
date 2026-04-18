@@ -10,10 +10,28 @@
 {% block content %}
 <div class="page-header">
     <h2><i class="fas fa-piggy-bank"></i>Presupuestos</h2>
-    <div class="d-flex gap-2">
-        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
-            <i class="fas fa-calendar me-1"></i>{{ mes_actual }}
-        </span>
+    <div class="d-flex gap-2 align-items-center">
+        <!-- Selector de mes -->
+        <form method="GET" class="d-flex gap-2">
+            <select class="form-select form-select-sm" name="mes" style="width: 140px;">
+                <option value="1" {% if mes == 1 %}selected{% endif %}>Enero</option>
+                <option value="2" {% if mes == 2 %}selected{% endif %}>Febrero</option>
+                <option value="3" {% if mes == 3 %}selected{% endif %}>Marzo</option>
+                <option value="4" {% if mes == 4 %}selected{% endif %}>Abril</option>
+                <option value="5" {% if mes == 5 %}selected{% endif %}>Mayo</option>
+                <option value="6" {% if mes == 6 %}selected{% endif %}>Junio</option>
+                <option value="7" {% if mes == 7 %}selected{% endif %}>Julio</option>
+                <option value="8" {% if mes == 8 %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if mes == 9 %}selected{% endif %}>Septiembre</option>
+                <option value="10" {% if mes == 10 %}selected{% endif %}>Octubre</option>
+                <option value="11" {% if mes == 11 %}selected{% endif %}>Noviembre</option>
+                <option value="12" {% if mes == 12 %}selected{% endif %}>Diciembre</option>
+            </select>
+            <input type="number" class="form-control form-select-sm" name="anio" value="{{ anio }}" style="width: 90px;" min="2020" max="2030">
+            <button type="submit" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-filter"></i>
+            </button>
+        </form>
         <a href="{{ url_for('nuevo_presupuesto') }}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Nuevo
         </a>

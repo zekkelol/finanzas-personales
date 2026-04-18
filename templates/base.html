@@ -91,9 +91,23 @@
                             <i class="fas fa-chart-bar"></i> Reportes
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'analisis_habitos' %}active{% endif %}" href="{{ url_for('analisis_habitos') }}">
+                            <i class="fas fa-brain"></i> Análisis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'predicciones' %}active{% endif %}" href="{{ url_for('predicciones') }}">
+                            <i class="fas fa-crystal-ball"></i> Predicciones
+                        </a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'tipos_cambio' %}active{% endif %}" href="{{ url_for('tipos_cambio') }}">
+                            <i class="fas fa-coins"></i>
+                        </a>
+                    </li>
                         <a class="nav-link {% if request.endpoint == 'importar_datos' %}active{% endif %}" href="{{ url_for('importar_datos') }}">
                             <i class="fas fa-upload"></i>
                         </a>
@@ -343,6 +357,25 @@
                 clearInterval(logoutTimer);
             }
         });
+
+        // Parallax effect for background images
+        const pageBackground = document.querySelector('.page-background');
+        if (pageBackground) {
+            let lastScrollY = window.scrollY;
+            let ticking = false;
+
+            window.addEventListener('scroll', () => {
+                lastScrollY = window.scrollY;
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        const scrollPercent = lastScrollY * 0.2;
+                        pageBackground.style.transform = `translateY(${scrollPercent}px)`;
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+        }
     </script>
 
     {% block extra_js %}{% endblock %}

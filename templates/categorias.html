@@ -10,9 +10,14 @@
 {% block content %}
 <div class="page-header">
     <h2><i class="fas fa-tags"></i>Categorías</h2>
-    <a href="{{ url_for('nueva_categoria') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Nueva Categoría
-    </a>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('tipos_cambio') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-coins me-2"></i>Monedas
+        </a>
+        <a href="{{ url_for('nueva_categoria') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Nueva Categoría
+        </a>
+    </div>
 </div>
 
 <div class="row g-4">
@@ -30,7 +35,12 @@
                              style="width: 36px; height: 36px; background: {{ cat.color }}20;">
                             <i class="{{ cat.icono }}" style="color: {{ cat.color }}"></i>
                         </div>
-                        <span class="fw-medium">{{ cat.nombre }}</span>
+                        <div>
+                            <span class="fw-medium">{{ cat.nombre }}</span>
+                            {% if cat.subcategorias.count() > 0 %}
+                            <small class="d-block text-muted">{{ cat.subcategorias.count() }} subcategoría(s)</small>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="d-flex gap-1">
                         <a href="{{ url_for('editar_categoria', id=cat.id) }}" class="btn btn-sm btn-outline-primary">
@@ -44,6 +54,28 @@
                         </form>
                     </div>
                 </div>
+                {% if cat.subcategorias.count() > 0 %}
+                    {% for sub in cat.subcategorias.all() %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center ps-4 border-start border-2"
+                         style="border-color: {{ cat.color }} !important; background: {{ cat.color }}08;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted">└─</span>
+                            <span>{{ sub.nombre }}</span>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('editar_categoria', id=sub.id) }}" class="btn btn-sm btn-outline-secondary py-0 px-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('eliminar_categoria', id=sub.id) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar esta subcategoría?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
                 {% else %}
                 <div class="text-center py-4">
                     <i class="fas fa-folder-open fa-2x text-muted mb-2 d-block opacity-50"></i>
@@ -68,7 +100,12 @@
                              style="width: 36px; height: 36px; background: {{ cat.color }}20;">
                             <i class="{{ cat.icono }}" style="color: {{ cat.color }}"></i>
                         </div>
-                        <span class="fw-medium">{{ cat.nombre }}</span>
+                        <div>
+                            <span class="fw-medium">{{ cat.nombre }}</span>
+                            {% if cat.subcategorias.count() > 0 %}
+                            <small class="d-block text-muted">{{ cat.subcategorias.count() }} subcategoría(s)</small>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="d-flex gap-1">
                         <a href="{{ url_for('editar_categoria', id=cat.id) }}" class="btn btn-sm btn-outline-primary">
@@ -82,6 +119,28 @@
                         </form>
                     </div>
                 </div>
+                {% if cat.subcategorias.count() > 0 %}
+                    {% for sub in cat.subcategorias.all() %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center ps-4 border-start border-2"
+                         style="border-color: {{ cat.color }} !important; background: {{ cat.color }}08;">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted">└─</span>
+                            <span>{{ sub.nombre }}</span>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('editar_categoria', id=sub.id) }}" class="btn btn-sm btn-outline-secondary py-0 px-1">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="{{ url_for('eliminar_categoria', id=sub.id) }}" method="POST" class="d-inline"
+                                  onsubmit="return confirm('¿Eliminar esta subcategoría?')">
+                                <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
                 {% else %}
                 <div class="text-center py-4">
                     <i class="fas fa-folder-open fa-2x text-muted mb-2 d-block opacity-50"></i>
