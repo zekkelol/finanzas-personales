@@ -65,6 +65,7 @@ class Categoria(db.Model):
     tipo = db.Column(db.String(20), nullable=False)  # ingreso o gasto
     icono = db.Column(db.String(50), default='fa-tag')
     color = db.Column(db.String(20), default='#6c757d')
+    parent_id = db.Column(db.Integer, nullable=True)  # Columna mantida por compatibilidad
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relaciones
