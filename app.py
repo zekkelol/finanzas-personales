@@ -650,39 +650,19 @@ def create_app():
             tipo = request.form.get('tipo')
             icono = request.form.get('icono', 'fa-tag')
             color = request.form.get('color', '#6c757d')
-            parent_id = request.form.get('parent_id')
-            
-            if parent_id:
-                try:
-                    parent_id = int(parent_id)
-                except:
-                    parent_id = None
-            
-            # Obtener el color del padre si es subcategoría
-            if parent_id:
-                padre = Categoria.query.get(parent_id)
-                if padre:
-                    color = padre.color
 
             categoria = Categoria(
                 nombre=nombre,
                 tipo=tipo,
                 icono=icono,
-                color=color,
-                parent_id=parent_id
+                color=color
             )
             db.session.add(categoria)
             db.session.commit()
-            
-            if parent_id:
-                flash('Subcategoría creada exitosamente', 'success')
-            else:
-                flash('Categoría creada exitosamente', 'success')
+            flash('Categoría creada exitosamente', 'success')
             return redirect(url_for('categorias'))
 
-        # Obtener categorías principales para el select de subcategorías
-        categorias_principales = Categoria.query.filter(Categoria.parent_id == None).order_by(Categoria.tipo, Categoria.nombre).all()
-        return render_template('categoria_form.html', categoria=None, categorias_principales=categorias_principales)
+        return render_template('categoria_form.html', categoria=None)
 
     @app.route('/categorias/editar/<int:id>', methods=['GET', 'POST'])
     @login_required
@@ -693,22 +673,13 @@ def create_app():
             categoria.nombre = request.form.get('nombre')
             categoria.tipo = request.form.get('tipo')
             categoria.icono = request.form.get('icono', 'fa-tag')
-            color = request.form.get('color', '#6c757d')
-            
-            # Si es subcategoría, mantener el color del padre
-            if categoria.parent_id:
-                padre = Categoria.query.get(categoria.parent_id)
-                if padre:
-                    color = padre.color
-            
-            categoria.color = color
-            
+            categoria.color = request.form.get('color', '#6c757d')
+
             db.session.commit()
             flash('Categoría actualizada exitosamente', 'success')
             return redirect(url_for('categorias'))
 
-        categorias_principales = Categoria.query.filter(Categoria.parent_id == None).order_by(Categoria.tipo, Categoria.nombre).all()
-        return render_template('categoria_form.html', categoria=categoria, categorias_principales=categorias_principales)
+        return render_template('categoria_form.html', categoria=categoria)
 
     @app.route('/categorias/eliminar/<int:id>', methods=['POST'])
     @login_required
