@@ -71,7 +71,7 @@ class Categoria(db.Model):
     # Relaciones
     transacciones = db.relationship('Transaccion', backref='categoria', lazy='dynamic')
     presupuestos = db.relationship('Presupuesto', backref='categoria', lazy='dynamic')
-    subcategorias = db.relationship('Categoria', backref='parent', remote_side=[id], lazy='dynamic')
+    subcategorias = db.relationship('Categoria', backref='parent', remote_side=[id], lazy='select')
 
     @property
     def es_subcategoria(self):
