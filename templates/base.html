@@ -46,7 +46,7 @@
 
     <!-- Navbar Glass -->
     <nav class="navbar navbar-expand-lg navbar-glass fixed-top">
-        <div class="container-fluid px-4">
+        <div class="container-fluid px-2">
             <a class="navbar-brand" href="{{ url_for('dashboard') }}">
                 <i class="fas fa-wallet"></i>
                 <span>Finanzas</span>
@@ -55,50 +55,50 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav mx-auto">
+                <ul class="navbar-nav mx-auto nav-scrollable">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
-                            <i class="fas fa-chart-line"></i> Dashboard
+                        <a class="nav-link nav-icon {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-chart-line"></i></span> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'transacciones' %}active{% endif %}" href="{{ url_for('transacciones') }}">
-                            <i class="fas fa-exchange-alt"></i> Transacciones
+                        <a class="nav-link nav-icon {% if request.endpoint == 'transacciones' %}active{% endif %}" href="{{ url_for('transacciones') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-exchange-alt"></i></span> Transacciones
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'cuentas' %}active{% endif %}" href="{{ url_for('cuentas') }}">
-                            <i class="fas fa-landmark"></i> Cuentas
+                        <a class="nav-link nav-icon {% if request.endpoint == 'cuentas' %}active{% endif %}" href="{{ url_for('cuentas') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-landmark"></i></span> Cuentas
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'categorias' %}active{% endif %}" href="{{ url_for('categorias') }}">
-                            <i class="fas fa-tags"></i> Categorías
+                        <a class="nav-link nav-icon {% if request.endpoint == 'categorias' %}active{% endif %}" href="{{ url_for('categorias') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-tags"></i></span> Categorías
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'presupuestos' %}active{% endif %}" href="{{ url_for('presupuestos') }}">
-                            <i class="fas fa-piggy-bank"></i> Presupuestos
+                        <a class="nav-link nav-icon {% if request.endpoint == 'presupuestos' %}active{% endif %}" href="{{ url_for('presupuestos') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-piggy-bank"></i></span> Presupuestos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'metas' %}active{% endif %}" href="{{ url_for('metas') }}">
-                            <i class="fas fa-bullseye"></i> Metas
+                        <a class="nav-link nav-icon {% if request.endpoint == 'metas' %}active{% endif %}" href="{{ url_for('metas') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-bullseye"></i></span> Metas
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'reportes' %}active{% endif %}" href="{{ url_for('reportes') }}">
-                            <i class="fas fa-chart-bar"></i> Reportes
+                        <a class="nav-link nav-icon {% if request.endpoint == 'reportes' %}active{% endif %}" href="{{ url_for('reportes') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-chart-bar"></i></span> Reportes
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'analisis_habitos' %}active{% endif %}" href="{{ url_for('analisis_habitos') }}">
-                            <i class="fas fa-brain"></i> Análisis
+                        <a class="nav-link nav-icon {% if request.endpoint == 'analisis_habitos' %}active{% endif %}" href="{{ url_for('analisis_habitos') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-brain"></i></span> Análisis
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'predicciones' %}active{% endif %}" href="{{ url_for('predicciones') }}">
-                            <i class="fas fa-crystal-ball"></i> Predicciones
+                        <a class="nav-link nav-icon {% if request.endpoint == 'predicciones' %}active{% endif %}" href="{{ url_for('predicciones') }}">
+                            <span class="nav-icon-wrapper"><i class="fas fa-crystal-ball"></i></span> Predicciones
                         </a>
                     </li>
                 </ul>

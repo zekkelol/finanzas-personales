@@ -82,8 +82,8 @@ def convertir_csv_a_json(archivo_csv):
         print("No se encontró la fila de meses")
         return
     
-    # Encontrar cuentas (tarjetas/servicios) - filas que tienen valores en meses
-    cuentas_map = {}  # nombre -> tipo
+    # Contador para IDs únicos
+    transaccion_id = 1
     
     # Procesar cada fila de gasto
     for i in range(mes_row_idx + 1, len(rows)):
@@ -95,7 +95,6 @@ def convertir_csv_a_json(archivo_csv):
         if nombre_gasto.lower() in ['total', 'gastos', '', ',']:
             continue
         
-        # Skip empty rows
         if nombre_gasto.startswith(','):
             continue
             
@@ -107,13 +106,15 @@ def convertir_csv_a_json(archivo_csv):
                 monto = limpiar_numero(row[col_idx])
                 if monto > 0:
                     transacciones.append({
+                        'id': transaccion_id,
                         'descripcion': nombre_gasto,
                         'monto': monto,
                         'tipo': 'gasto',
-                        'fecha': f"2025-{meses[mes_nombre]:02d}-15",  # Dia 15 del mes
-                        'categoria_id': None,  # Se asignará en la app
-                        'cuenta_id': 1,  # Default: primera cuenta
+                        'fecha': f"2025-{meses[mes_nombre]:02d}-15",
+                        'categoria_id': None,
+                        'cuenta_id': 1,
                     })
+                    transaccion_id += 1
     
     return transacciones
 
@@ -131,7 +132,7 @@ if __name__ == '__main__':
         # Crear estructura compatible con importador
         data = {
             'transacciones': transacciones,
-            'cuentas': [],  # No se crean cuentas
+            'cuentas': [],
             'categorias': [],
             'presupuestos': [],
             'metas': []

@@ -10,9 +10,23 @@
 {% block content %}
 <div class="page-header">
     <h2><i class="fas fa-brain"></i>Análisis de Hábitos de Gasto</h2>
-    <a href="{{ url_for('predicciones') }}" class="btn btn-outline-primary">
-        <i class="fas fa-crystal-ball me-2"></i>Ver Predicciones
-    </a>
+    <div class="d-flex gap-2 align-items-center">
+        <form method="GET" class="d-flex gap-2 align-items-center">
+            <div class="input-group input-group-sm" style="width: 130px;">
+                <span class="input-group-text" style="background: var(--accent-primary); border-color: var(--accent-primary); color: white;">
+                    <i class="fas fa-calendar-check"></i>
+                </span>
+                <select name="anio" class="form-select" onchange="this.form.submit()">
+                    {% for a in anios_disponibles %}
+                    <option value="{{ a }}" {% if a == anio_seleccionado %}selected{% endif %}>{{ a }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+        <a href="{{ url_for('predicciones') }}" class="btn btn-outline-primary">
+            <i class="fas fa-crystal-ball me-2"></i>Ver Predicciones
+        </a>
+    </div>
 </div>
 
 {% if patrones_detectados %}
@@ -153,10 +167,10 @@
     <div class="col-12">
         <div class="card card-solid">
             <div class="card-header bg-success bg-opacity-10">
-                <h5 class="mb-0 text-success"><i class="fas fa-wallet me-2"></i>Total Gastado Últimos 12 Meses</h5>
+                <h5 class="mb-0 text-success"><i class="fas fa-wallet me-2"></i>Total Gastado Año {{ anio_seleccionado }}</h5>
             </div>
             <div class="card-body text-center">
-                <h2 class="mb-0">${{ "%.2f"|format(total_gasto_anual) }}</h2>
+                <h2 class="mb-0">${{ "{:,.0f}".format(total_gasto_anual) }}</h2>
                 <small class="text-muted">Basado en {{ promedio_por_dia|sum(attribute='conteo') }} transacciones</small>
             </div>
         </div>

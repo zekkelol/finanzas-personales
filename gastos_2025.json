@@ -1,0 +1,1466 @@
+{
+  "transacciones": [
+    {
+      "id": 1,
+      "descripcion": "Visa ICBC",
+      "monto": 1000000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 2,
+      "descripcion": "Visa ICBC",
+      "monto": 600000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 3,
+      "descripcion": "Visa ICBC",
+      "monto": 430000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 4,
+      "descripcion": "Visa ICBC",
+      "monto": 380000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 5,
+      "descripcion": "Visa ICBC",
+      "monto": 800000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 6,
+      "descripcion": "Visa ICBC",
+      "monto": 900000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 7,
+      "descripcion": "Visa ICBC",
+      "monto": 850000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 8,
+      "descripcion": "Visa ICBC",
+      "monto": 850000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 9,
+      "descripcion": "Visa ICBC",
+      "monto": 1000000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 10,
+      "descripcion": "Visa ICBC",
+      "monto": 650000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 11,
+      "descripcion": "Visa ICBC",
+      "monto": 1450000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 12,
+      "descripcion": "Master ICBC",
+      "monto": 350000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 13,
+      "descripcion": "Master ICBC",
+      "monto": 450000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 14,
+      "descripcion": "Master ICBC",
+      "monto": 440000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 15,
+      "descripcion": "Master ICBC",
+      "monto": 1050000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 16,
+      "descripcion": "Master ICBC",
+      "monto": 800000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 17,
+      "descripcion": "Master ICBC",
+      "monto": 750000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 18,
+      "descripcion": "Master ICBC",
+      "monto": 540000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 19,
+      "descripcion": "Master ICBC",
+      "monto": 500000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 20,
+      "descripcion": "Master ICBC",
+      "monto": 2250000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 21,
+      "descripcion": "Master ICBC",
+      "monto": 570000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 22,
+      "descripcion": "Master ICBC",
+      "monto": 700000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 23,
+      "descripcion": "BBVA",
+      "monto": 280135.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 24,
+      "descripcion": "BBVA",
+      "monto": 280500.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 25,
+      "descripcion": "BBVA",
+      "monto": 289000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 26,
+      "descripcion": "BBVA",
+      "monto": 289000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 27,
+      "descripcion": "BBVA",
+      "monto": 289000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 28,
+      "descripcion": "BBVA",
+      "monto": 285300.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 29,
+      "descripcion": "BBVA",
+      "monto": 284700.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 30,
+      "descripcion": "BBVA",
+      "monto": 285000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 31,
+      "descripcion": "BBVA",
+      "monto": 284000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 32,
+      "descripcion": "BBVA",
+      "monto": 282000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 33,
+      "descripcion": "BBVA",
+      "monto": 276500.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 34,
+      "descripcion": "Nacion",
+      "monto": 310050.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 35,
+      "descripcion": "Nacion",
+      "monto": 87000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 36,
+      "descripcion": "Nacion",
+      "monto": 76000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 37,
+      "descripcion": "Nacion",
+      "monto": 110000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 38,
+      "descripcion": "Nacion",
+      "monto": 175000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 39,
+      "descripcion": "Nacion",
+      "monto": 127000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 40,
+      "descripcion": "Nacion",
+      "monto": 168000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 41,
+      "descripcion": "Nacion",
+      "monto": 175000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 42,
+      "descripcion": "Nacion",
+      "monto": 188300.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 43,
+      "descripcion": "Nacion",
+      "monto": 223000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 44,
+      "descripcion": "Nacion",
+      "monto": 71840.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 45,
+      "descripcion": "M Pago",
+      "monto": 77500.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 46,
+      "descripcion": "M Pago",
+      "monto": 83000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 47,
+      "descripcion": "M Pago",
+      "monto": 83000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 48,
+      "descripcion": "M Pago",
+      "monto": 146000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 49,
+      "descripcion": "M Pago",
+      "monto": 83000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 50,
+      "descripcion": "M Pago",
+      "monto": 163000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 51,
+      "descripcion": "M Pago",
+      "monto": 210000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 52,
+      "descripcion": "M Pago",
+      "monto": 140262.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 53,
+      "descripcion": "M Pago",
+      "monto": 175000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 54,
+      "descripcion": "Fibertel",
+      "monto": 18500.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 55,
+      "descripcion": "Fibertel",
+      "monto": 18500.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 56,
+      "descripcion": "Fibertel",
+      "monto": 18500.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 57,
+      "descripcion": "Fibertel",
+      "monto": 18000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 58,
+      "descripcion": "Fibertel",
+      "monto": 18000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 59,
+      "descripcion": "Fibertel",
+      "monto": 20000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 60,
+      "descripcion": "Fibertel",
+      "monto": 18000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 61,
+      "descripcion": "Fibertel",
+      "monto": 17000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 62,
+      "descripcion": "Fibertel",
+      "monto": 20000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 63,
+      "descripcion": "Fibertel",
+      "monto": 20000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 64,
+      "descripcion": "Fibertel",
+      "monto": 20000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 65,
+      "descripcion": "Credito ICBC",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 66,
+      "descripcion": "Credito ICBC",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 67,
+      "descripcion": "Credito ICBC",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 68,
+      "descripcion": "Credito ICBC",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 69,
+      "descripcion": "Credito ICBC",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 70,
+      "descripcion": "Credito ICBC",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 71,
+      "descripcion": "Credito ICBC",
+      "monto": 150000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 72,
+      "descripcion": "Credito ICBC",
+      "monto": 155000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 73,
+      "descripcion": "Credito ICBC",
+      "monto": 155000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 74,
+      "descripcion": "Credito ICBC",
+      "monto": 155000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 75,
+      "descripcion": "Credito ICBC",
+      "monto": 97000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 76,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 77,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 78,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 79,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 80,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 81,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 82,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 83,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 84,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 85,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 86,
+      "descripcion": "credito ANSES",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 87,
+      "descripcion": "Fibertel Baradero",
+      "monto": 7500.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 88,
+      "descripcion": "Personal",
+      "monto": 58000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 89,
+      "descripcion": "Personal",
+      "monto": 59000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 90,
+      "descripcion": "Personal",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 91,
+      "descripcion": "Personal",
+      "monto": 60000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 92,
+      "descripcion": "Personal",
+      "monto": 62000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 93,
+      "descripcion": "Personal",
+      "monto": 66000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 94,
+      "descripcion": "Personal",
+      "monto": 62000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 95,
+      "descripcion": "Personal",
+      "monto": 64000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 96,
+      "descripcion": "Personal",
+      "monto": 67000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 97,
+      "descripcion": "Personal",
+      "monto": 68440.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 98,
+      "descripcion": "Personal",
+      "monto": 69980.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 99,
+      "descripcion": "GAS",
+      "monto": 54700.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 100,
+      "descripcion": "GAS",
+      "monto": 57753.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 101,
+      "descripcion": "Maximo",
+      "monto": 80000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 102,
+      "descripcion": "Maximo",
+      "monto": 300000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 103,
+      "descripcion": "Maximo",
+      "monto": 120000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 104,
+      "descripcion": "Maximo",
+      "monto": 120000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 105,
+      "descripcion": "Maximo",
+      "monto": 81000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 106,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 107,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 108,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 109,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 110,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 111,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 112,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 113,
+      "descripcion": "seguro de vida",
+      "monto": 12000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 114,
+      "descripcion": "seguro de vida",
+      "monto": 19000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 115,
+      "descripcion": "seguro de vida",
+      "monto": 19000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 116,
+      "descripcion": "seguro de vida",
+      "monto": 19000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 117,
+      "descripcion": "Acciones+Bonos+Cedear+Cryptos",
+      "monto": 190000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 118,
+      "descripcion": "Acciones+Bonos+Cedear+Cryptos",
+      "monto": 300000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 119,
+      "descripcion": "Acciones+Bonos+Cedear+Cryptos",
+      "monto": 250000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 120,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 121,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 122,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 123,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 124,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 125,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 126,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 127,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 128,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 129,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 130,
+      "descripcion": "Foetra",
+      "monto": 75000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 131,
+      "descripcion": "Alquiler",
+      "monto": 390000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 132,
+      "descripcion": "Alquiler",
+      "monto": 346000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 133,
+      "descripcion": "Alquiler",
+      "monto": 300000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 134,
+      "descripcion": "Luz y Gas Nela",
+      "monto": 150000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 135,
+      "descripcion": "gym",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 136,
+      "descripcion": "gym",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 137,
+      "descripcion": "gym",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 138,
+      "descripcion": "gym",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 139,
+      "descripcion": "gym",
+      "monto": 25000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 140,
+      "descripcion": "gym",
+      "monto": 28000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 141,
+      "descripcion": "gym",
+      "monto": 30000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 142,
+      "descripcion": "gym",
+      "monto": 65000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 143,
+      "descripcion": "gym",
+      "monto": 38000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 144,
+      "descripcion": "MT-03",
+      "monto": 385500.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 145,
+      "descripcion": "MT-03",
+      "monto": 385500.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 146,
+      "descripcion": "seguro libra",
+      "monto": 25000.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 147,
+      "descripcion": "seguro libra",
+      "monto": 25000.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 148,
+      "descripcion": "seguro libra",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 149,
+      "descripcion": "seguro libra",
+      "monto": 36000.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 150,
+      "descripcion": "seguro libra",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 151,
+      "descripcion": "seguro libra",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 152,
+      "descripcion": "seguro libra",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-07-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 153,
+      "descripcion": "seguro libra",
+      "monto": 22000.0,
+      "tipo": "gasto",
+      "fecha": "2025-08-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 154,
+      "descripcion": "seguro libra",
+      "monto": 23000.0,
+      "tipo": "gasto",
+      "fecha": "2025-09-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 155,
+      "descripcion": "seguro libra",
+      "monto": 23000.0,
+      "tipo": "gasto",
+      "fecha": "2025-10-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 156,
+      "descripcion": "seguro libra",
+      "monto": 23000.0,
+      "tipo": "gasto",
+      "fecha": "2025-11-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 157,
+      "descripcion": "Viaje Egresado",
+      "monto": 12608.0,
+      "tipo": "gasto",
+      "fecha": "2025-01-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 158,
+      "descripcion": "Viaje Egresado",
+      "monto": 12608.0,
+      "tipo": "gasto",
+      "fecha": "2025-02-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 159,
+      "descripcion": "Viaje Egresado",
+      "monto": 12608.0,
+      "tipo": "gasto",
+      "fecha": "2025-03-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 160,
+      "descripcion": "Viaje Egresado",
+      "monto": 12608.0,
+      "tipo": "gasto",
+      "fecha": "2025-04-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 161,
+      "descripcion": "Viaje Egresado",
+      "monto": 12608.0,
+      "tipo": "gasto",
+      "fecha": "2025-05-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    },
+    {
+      "id": 162,
+      "descripcion": "Viaje Egresado",
+      "monto": 12608.0,
+      "tipo": "gasto",
+      "fecha": "2025-06-15",
+      "categoria_id": null,
+      "cuenta_id": 1
+    }
+  ],
+  "cuentas": [],
+  "categorias": [],
+  "presupuestos": [],
+  "metas": []
+}

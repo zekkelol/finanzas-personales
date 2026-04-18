@@ -331,25 +331,44 @@ def create_app():
         cuentas = Cuenta.query.filter_by(activa=True).all()
         total_activos = sum(c.saldo_actual for c in cuentas)
 
-        # Fecha actual
+        # Fecha actual / año y mes seleccionados
         hoy = datetime.now().date()
-        inicio_mes = date(hoy.year, hoy.month, 1)
-        if hoy.month == 12:
-            fin_mes = date(hoy.year + 1, 1, 1) - timedelta(days=1)
+        anio_seleccionado = request.args.get('anio', type=int, default=hoy.year)
+        mes_seleccionado = request.args.get('mes', type=int, default=hoy.month)
+        
+        inicio_anio = date(anio_seleccionado, 1, 1)
+        fin_anio = date(anio_seleccionado, 12, 31)
+        
+        inicio_mes = date(anio_seleccionado, mes_seleccionado, 1)
+        if mes_seleccionado == 12:
+            fin_mes = date(anio_seleccionado + 1, 1, 1) - timedelta(days=1)
         else:
-            fin_mes = date(hoy.year, hoy.month + 1, 1) - timedelta(days=1)
+            fin_mes = date(anio_seleccionado, mes_seleccionado + 1, 1) - timedelta(days=1)
 
         meses_espanol = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
                         'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-        mes_actual_nombre = meses_espanol[hoy.month - 1]
+        mes_actual_nombre = meses_espanol[mes_seleccionado - 1]
 
-        # Transacciones del mes actual
+        # Transacciones del mes seleccionado
         transacciones_mes = Transaccion.query.filter(
             Transaccion.fecha >= inicio_mes,
             Transaccion.fecha <= fin_mes
         ).order_by(Transaccion.fecha.desc()).limit(10).all()
 
-        # Ingresos vs gastos del mes
+        # Ingresos vs gastos del año seleccionado
+        ingresos_anio = db.session.query(func.sum(Transaccion.monto)).filter(
+            Transaccion.tipo == 'ingreso',
+            Transaccion.fecha >= inicio_anio,
+            Transaccion.fecha <= fin_anio
+        ).scalar() or 0
+
+        gastos_anio = db.session.query(func.sum(Transaccion.monto)).filter(
+            Transaccion.tipo == 'gasto',
+            Transaccion.fecha >= inicio_anio,
+            Transaccion.fecha <= fin_anio
+        ).scalar() or 0
+
+        # Ingresos vs gastos del mes seleccionado
         ingresos_mes = db.session.query(func.sum(Transaccion.monto)).filter(
             Transaccion.tipo == 'ingreso',
             Transaccion.fecha >= inicio_mes,
@@ -362,26 +381,34 @@ def create_app():
             Transaccion.fecha <= fin_mes
         ).scalar() or 0
 
-        # Gastos por categoría (mes actual)
+        # Gastos por categoría (del año seleccionado)
         gastos_por_categoria = db.session.query(
             Categoria.nombre,
             Categoria.color,
             func.sum(Transaccion.monto).label('total')
         ).join(Transaccion).filter(
             Transaccion.tipo == 'gasto',
-            Transaccion.fecha >= inicio_mes,
-            Transaccion.fecha <= fin_mes,
+            Transaccion.fecha >= inicio_anio,
+            Transaccion.fecha <= fin_anio,
             Transaccion.categoria_id == Categoria.id
         ).group_by(Categoria.id).all()
 
-        # Presupuestos del mes
+        # Presupuestos del mes/año seleccionado
         presupuestos = Presupuesto.query.filter_by(
             mes=hoy.month,
-            anio=hoy.year
+            anio=anio_seleccionado
         ).all()
 
         # Metas activas
         metas = Meta.query.filter_by(activa=True).all()
+
+        # Años disponibles para el selector
+        anios_disponibles = db.session.query(
+            func.extract('year', Transaccion.fecha).label('anio')
+        ).distinct().order_by(func.extract('year', Transaccion.fecha).desc()).all()
+        anios_disponibles = sorted([int(a.anio) for a in anios_disponibles])
+        if not anios_disponibles:
+            anios_disponibles = [hoy.year]
 
         return render_template('dashboard.html',
                                cuentas=cuentas,
@@ -389,10 +416,16 @@ def create_app():
                                transacciones_mes=transacciones_mes,
                                ingresos_mes=ingresos_mes,
                                gastos_mes=gastos_mes,
+                               ingresos_anio=ingresos_anio,
+                               gastos_anio=gastos_anio,
                                gastos_por_categoria=gastos_por_categoria,
                                presupuestos=presupuestos,
                                metas=metas,
-                               mes_actual_nombre=mes_actual_nombre)
+                               mes_actual_nombre=mes_actual_nombre,
+                               mes_seleccionado=mes_seleccionado,
+                               anio_seleccionado=anio_seleccionado,
+                               anios_disponibles=anios_disponibles,
+                               meses_espanol=meses_espanol)
 
     @app.route('/cuentas')
     @login_required
@@ -1220,12 +1253,17 @@ def create_app():
     def analisis_habitos():
         """Análisis de patrones de gasto por día de la semana y hora"""
         
-        # Obtener último año de datos
+        # Obtener año seleccionado o actual
         hoy = datetime.now().date()
-        hace_un_anio = date(hoy.year - 1, hoy.month, hoy.day)
+        anio_seleccionado = request.args.get('anio', type=int, default=hoy.year)
+        
+        # Obtener transacciones del año seleccionado
+        inicio_anio = date(anio_seleccionado, 1, 1)
+        fin_anio = date(anio_seleccionado, 12, 31)
         
         transacciones = Transaccion.query.filter(
-            Transaccion.fecha >= hace_un_anio,
+            Transaccion.fecha >= inicio_anio,
+            Transaccion.fecha <= fin_anio,
             Transaccion.tipo == 'gasto'
         ).all()
         
@@ -1350,7 +1388,9 @@ def create_app():
                                gasto_por_semana_mes=gasto_por_semana_mes,
                                analisis_categorias=analisis_categorias[:10],
                                patrones_detectados=patrones_detectados,
-                               total_gasto_anual=sum(gasto_por_dia))
+                               total_gasto_anual=sum(gasto_por_dia),
+                               anio_seleccionado=anio_seleccionado,
+                               anios_disponibles=sorted(set([t.fecha.year for t in Transaccion.query.all()])) or [hoy.year])
 
     # ============ PREDICCIÓN DE GASTOS ============
     @app.route('/predicciones')
@@ -1358,20 +1398,24 @@ def create_app():
     def predicciones():
         """Predicción simple de gastos basada en tendencia"""
         hoy = datetime.now().date()
+        anio_seleccionado = request.args.get('anio', type=int, default=hoy.year)
         
-        # Obtener gastos de los últimos 6 meses por categoría
+        # Obtener gastos de los últimos 6 meses del año seleccionado por categoría
         predicciones = []
         categorias = Categoria.query.filter_by(tipo='gasto').all()
         
         for cat in categorias:
-            # Obtener gastos de últimos 6 meses
+            # Obtener gastos de últimos 6 meses del año seleccionado
             gastos_mensuales = []
             for i in range(5, -1, -1):
                 mes = hoy.month - i
-                anio = hoy.year
+                anio = anio_seleccionado
                 if mes < 1:
                     mes += 12
                     anio -= 1
+                
+                if anio < anio_seleccionado - 1:
+                    continue
                 
                 inicio = date(anio, mes, 1)
                 if mes == 12:
@@ -1437,7 +1481,12 @@ def create_app():
         # Ordenar porpredicción descendente
         predicciones.sort(key=lambda x: x['prediccion'], reverse=True)
         
-        return render_template('predicciones.html', predicciones=predicciones)
+        anios_disponibles = sorted(set([t.fecha.year for t in Transaccion.query.all()])) or [hoy.year]
+        
+        return render_template('predicciones.html', 
+                               predicciones=predicciones,
+                               anio_seleccionado=anio_seleccionado,
+                               anios_disponibles=anios_disponibles)
 
     return app
 
