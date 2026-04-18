@@ -48,9 +48,12 @@ def create_app():
     db.init_app(app)
 
     with app.app_context():
-        db.create_all()
-        crear_usuario_por_defecto()
-        crear_categorias_por_defecto()
+        try:
+            db.create_all()
+            crear_usuario_por_defecto()
+            crear_categorias_por_defecto()
+        except Exception as e:
+            print(f"Warning during init: {e}")
 
     # Rutas de autenticación
     @app.route('/login', methods=['GET', 'POST'])
