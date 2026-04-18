@@ -57,7 +57,7 @@ class Cuenta(db.Model):
 
 
 class Categoria(db.Model):
-    """Categorías para transacciones con soporte de subcategorías"""
+    """Categorías para transacciones"""
     __tablename__ = 'categorias'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -65,22 +65,11 @@ class Categoria(db.Model):
     tipo = db.Column(db.String(20), nullable=False)  # ingreso o gasto
     icono = db.Column(db.String(50), default='fa-tag')
     color = db.Column(db.String(20), default='#6c757d')
-    parent_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Relaciones
     transacciones = db.relationship('Transaccion', backref='categoria', lazy='dynamic')
     presupuestos = db.relationship('Presupuesto', backref='categoria', lazy='dynamic')
-
-    @property
-    def es_subcategoria(self):
-        return self.parent_id is not None
-
-    @property
-    def nombre_completo(self):
-        if self.parent_id:
-            return f"{self.parent.nombre} > {self.nombre}"
-        return self.nombre
 
     def __repr__(self):
         return f'<Categoria {self.nombre} ({self.tipo})>'
