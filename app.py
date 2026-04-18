@@ -630,17 +630,12 @@ def create_app():
     @app.route('/categorias')
     @login_required
     def categorias():
-        # Obtener solo categorías principales (sin parent)
-        categorias_ingresos = Categoria.query.filter_by(tipo='ingreso', parent_id=None).all()
-        categorias_gastos = Categoria.query.filter_by(tipo='gasto', parent_id=None).all()
-        
-        # Obtener todas las subcategorías
-        subcategorias = Categoria.query.filter(Categoria.parent_id != None).all()
+        categorias_ingresos = Categoria.query.filter_by(tipo='ingreso').all()
+        categorias_gastos = Categoria.query.filter_by(tipo='gasto').all()
         
         return render_template('categorias.html',
                                categorias_ingresos=categorias_ingresos,
-                               categorias_gastos=categorias_gastos,
-                               subcategorias=subcategorias)
+                               categorias_gastos=categorias_gastos)
 
     @app.route('/categorias/nueva', methods=['GET', 'POST'])
     @login_required
