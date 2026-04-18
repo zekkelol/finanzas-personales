@@ -49,6 +49,14 @@ def create_app():
 
     with app.app_context():
         try:
+            # Agregar columna parent_id si no existe
+            from sqlalchemy import text
+            try:
+                db.session.execute(text("ALTER TABLE categorias ADD COLUMN parent_id INTEGER"))
+                db.session.commit()
+            except:
+                db.session.rollback()
+            
             db.create_all()
             crear_usuario_por_defecto()
             crear_categorias_por_defecto()
